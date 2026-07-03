@@ -20,6 +20,12 @@ defmodule VoiceBbsWeb.Router do
     live "/", BoardLive
   end
 
+  scope "/", VoiceBbsWeb do
+    pipe_through :api
+
+    get "/healthz", HealthController, :index
+  end
+
   scope "/api", VoiceBbsWeb do
     pipe_through :api
 
