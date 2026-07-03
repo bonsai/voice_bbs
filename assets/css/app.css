@@ -31,6 +31,17 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
+@keyframes film-shimmer {
+  0%, 100% { opacity: 0.15; transform: scale(0.92); }
+  50% { opacity: 0.35; transform: scale(1); }
+}
+
+@keyframes bubble-grow {
+  0% { transform: scale(0.1); opacity: 0; }
+  30% { transform: scale(0.5); opacity: 0.7; }
+  100% { transform: scale(1); opacity: 1; }
+}
+
 .bubble-float { animation: float 6s ease-in-out infinite; }
 .bubble-float-reverse { animation: float-reverse 7s ease-in-out infinite; }
 .bubble-float-slow { animation: float-slow 9s ease-in-out infinite; }
@@ -91,43 +102,101 @@
   opacity: 0.85;
 }
 
-.record-btn {
-  width: 88px;
-  height: 88px;
+/* ── Bubble Wand ── */
+
+.wand {
+  width: 56px;
+  height: 140px;
+  background: transparent;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  padding: 0;
+  -webkit-tap-highlight-color: transparent;
+  transition: transform 0.15s ease;
+}
+
+.wand:hover { transform: scale(1.05); }
+.wand:active { transform: scale(0.95); }
+
+.wand-ring {
+  width: 52px;
+  height: 52px;
   border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%, #ff6b6b, #dc2626 70%, #991b1b);
-  box-shadow:
-    0 6px 28px rgba(220, 38, 38, 0.3),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.25),
-    inset 0 3px 6px rgba(255, 255, 255, 0.15);
-  transition: all 0.2s ease;
+  border: 3px solid rgba(180, 200, 230, 0.6);
+  background: transparent;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 36px;
-  cursor: pointer;
-  user-select: none;
-  -webkit-user-select: none;
-  border: none;
-  outline: none;
-}
-
-.record-btn:hover {
-  transform: scale(1.06);
   box-shadow:
-    0 10px 36px rgba(220, 38, 38, 0.4),
-    inset 0 -3px 6px rgba(0, 0, 0, 0.25),
-    inset 0 3px 6px rgba(255, 255, 255, 0.15);
+    0 0 12px rgba(160, 190, 230, 0.3),
+    inset 0 0 8px rgba(180, 210, 255, 0.15);
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
 }
 
-.record-btn:active {
-  transform: scale(0.9);
+.wand-film {
+  width: 42px;
+  height: 42px;
+  border-radius: 50%;
+  background: radial-gradient(circle at 40% 40%,
+    rgba(255,255,255,0.2),
+    rgba(200,220,250,0.08) 40%,
+    rgba(180,200,240,0.15) 70%,
+    rgba(200,180,240,0.1) 100%);
+  animation: film-shimmer 2s ease-in-out infinite;
+  transition: all 0.3s ease;
 }
 
-.record-btn.recording {
-  animation: pulse-glow 1.2s ease-in-out infinite;
-  background: radial-gradient(circle at 40% 40%, #ef4444, #b91c1c 70%, #7f1d1d);
+.wand.recording .wand-ring {
+  border-color: rgba(200, 160, 240, 0.8);
+  box-shadow:
+    0 0 20px rgba(180, 150, 230, 0.4),
+    inset 0 0 12px rgba(200, 170, 240, 0.2);
 }
+
+.wand.recording .wand-film {
+  background: radial-gradient(circle at 40% 40%,
+    rgba(255,255,255,0.35),
+    rgba(220,200,255,0.15) 40%,
+    rgba(200,180,240,0.25) 70%,
+    rgba(180,160,220,0.15) 100%);
+  transform: scale(1.08);
+}
+
+.wand-handle {
+  width: 8px;
+  height: 64px;
+  border-radius: 4px;
+  background: linear-gradient(180deg,
+    rgba(200, 210, 230, 0.5) 0%,
+    rgba(230, 220, 240, 0.3) 20%,
+    rgba(180, 190, 210, 0.4) 50%,
+    rgba(210, 200, 220, 0.35) 80%,
+    rgba(190, 180, 200, 0.5) 100%);
+  box-shadow:
+    inset 2px 0 4px rgba(255,255,255,0.3),
+    inset -2px 0 4px rgba(0,0,0,0.05);
+}
+
+/* ── Preview bubble (grows during recording) ── */
+
+.preview-bubble {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  margin-bottom: 4px;
+  transition: width 0.15s ease-out, height 0.15s ease-out;
+}
+
+.preview-bubble.visible {
+  animation: bubble-grow 0.3s ease-out;
+}
+
+/* ── Sky background ── */
 
 .sky-bg {
   background: linear-gradient(180deg,

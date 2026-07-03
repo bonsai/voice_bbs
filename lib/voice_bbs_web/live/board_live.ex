@@ -55,26 +55,17 @@ defmodule VoiceBbsWeb.BoardLive do
            style="background:radial-gradient(circle,rgba(255,200,180,0.8),transparent 70%)">
       </div>
 
-      <%!-- header: floating text, no border --%>
-      <div class="text-center pt-12 pb-4">
+      <%!-- header: floating text --%>
+      <div class="text-center pt-10 pb-2">
         <h1 class="text-2xl font-bold tracking-wide"
             style="background:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
           voice bubble
         </h1>
-        <p class="text-xs text-purple-400/40 mt-1 font-light">tap to listen</p>
-      </div>
-
-      <%!-- Record button center --%>
-      <div id="recorder" phx-hook="AudioRecorder" class="flex flex-col items-center mb-8">
-        <button id="record-btn" class="record-btn">🎤</button>
-        <div id="timer" class="text-center mt-3 text-purple-400/60 text-xs font-mono hidden">
-          0:00 / 0:30
-        </div>
-        <p class="text-[11px] text-purple-300/30 mt-2 font-light">hold to record</p>
+        <p class="text-xs text-purple-400/40 mt-0.5 font-light">tap to listen</p>
       </div>
 
       <%!-- Floating bubbles --%>
-      <div id="posts" phx-update="stream" class="max-w-2xl mx-auto px-8 pb-32 flex flex-wrap justify-center items-center gap-6">
+      <div id="posts" phx-update="stream" class="max-w-2xl mx-auto px-8 pb-40 flex flex-wrap justify-center items-center gap-6">
         <button
           :for={{id, post} <- @streams.posts}
           id={id}
@@ -83,17 +74,40 @@ defmodule VoiceBbsWeb.BoardLive do
           phx-click={JS.dispatch("play-audio", detail: %{url: post.url})}
         >
           <div class="bubble w-full h-full overflow-hidden">
-            <img
-              src={post.url}
-              alt="voice"
-              class="bubble-img w-full h-full"
-            />
+            <img src={post.url} alt="voice" class="bubble-img w-full h-full" />
           </div>
         </button>
 
         <div :if={@post_count == 0} class="text-center py-20 w-full">
           <div class="text-5xl mb-4 opacity-30">🫧</div>
-          <p class="text-purple-400/30 text-sm font-light">press the mic to speak</p>
+          <p class="text-purple-400/30 text-sm font-light">blow a bubble</p>
+        </div>
+      </div>
+
+      <%!-- Straw wand + preview bubble (fixed bottom) --%>
+      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pb-8 pointer-events-none">
+        <%!-- preview bubble: grows in real-time during recording --%>
+        <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
+             style="width:0px;height:0px">
+          <div class="bubble w-full h-full overflow-hidden opacity-60">
+            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.6),rgba(200,220,255,0.25) 50%,rgba(180,200,240,0.35) 100%)"></div>
+          </div>
+        </div>
+
+        <%!-- bubble wand (straw + ring) --%>
+        <div class="pointer-events-auto flex flex-col items-center">
+          <div id="timer" class="text-center mb-2 text-purple-400/50 text-xs font-mono hidden">
+            0:00 / 0:30
+          </div>
+
+          <button id="record-btn" class="wand">
+            <div class="wand-ring">
+              <div class="wand-film"></div>
+            </div>
+            <div class="wand-handle"></div>
+          </button>
+
+          <p class="text-[11px] text-purple-300/30 mt-2 font-light">hold to blow</p>
         </div>
       </div>
     </div>

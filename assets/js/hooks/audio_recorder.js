@@ -40,6 +40,11 @@ function encodeBytesAsPNG(bytes) {
   })
 }
 
+function bubbleSizePx(duration) {
+  const scale = Math.min(duration / MAX_DURATION, 1)
+  return Math.round(56 + scale * 104)
+}
+
 export const AudioRecorder = {
   mounted() {
     this.mediaRecorder = null
@@ -50,32 +55,26 @@ export const AudioRecorder = {
 
     this.btn = this.el.querySelector('#record-btn')
     this.timer = this.el.querySelector('#timer')
+    this.preview = this.el.querySelector('#preview-bubble')
 
-    this.btn.addEventListener('pointerdown', (e) => {
+    const onDown = (e) => {
       e.preventDefault()
       this.startRecording()
-    })
-
-    this.btn.addEventListener('pointerup', (e) => {
+    }
+    const onUp = (e) => {
       e.preventDefault()
       this.stopRecording()
-    })
+    }
 
+    this.btn.addEventListener('pointerdown', onDown)
+    this.btn.addEventListener('pointerup', onUp)
     this.btn.addEventListener('pointerleave', () => {
       if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
         this.stopRecording()
       }
     })
-
-    this.btn.addEventListener('touchstart', (e) => {
-      e.preventDefault()
-      this.startRecording()
-    })
-
-    this.btn.addEventListener('touchend', (e) => {
-      e.preventDefault()
-      this.stopRecording()
-    })
+    this.btn.addEventListener('touchstart', onDown)
+    this.btn.addEventListener('touchend', onUp)
   },
 
   async startRecording() {
@@ -94,9 +93,11 @@ export const AudioRecorder = {
 
       this.mediaRecorder.onstop = async () => {
         this.stream.getTracks().forEach((t) => t.stop())
-        this.btn.textContent = '\u{1F3A4}'
         this.btn.classList.remove('recording')
         this.timer.classList.add('hidden')
+        this.preview.classList.add('hidden')
+        this.preview.style.width = '0px'
+        this.preview.style.height = '0px'
         clearInterval(this.timerInterval)
 
         if (this.chunks.length === 0) return
@@ -122,20 +123,24 @@ export const AudioRecorder = {
 
       this.mediaRecorder.start()
       this.startTime = Date.now()
-      this.btn.textContent = '\u{1F534}'
+
       this.btn.classList.add('recording')
       this.timer.classList.remove('hidden')
+      this.preview.classList.remove('hidden')
+      this.preview.classList.add('visible')
 
-      this.timerInterval = setInterval(() => {
-        const elapsed = Math.floor((Date.now() - this.startTime) / 1000)
-        this.timer.textContent = `0:${String(elapsed).padStart(2, '0')} / 0:30`
-        if (elapsed >= MAX_DURATION) {
-          this.stopRecording()
-        }
-      }, 200)
+      const updateBubble = () => {
+        const elapsed = Math.min((Date.now() - this.startTime) / 1000, MAX_DURATION)
+        const size = bubbleSizePx(elapsed)
+        this.preview.style.width = size + 'px'
+        this.preview.style.height = size + 'px'
+        this.timer.textContent = `0:${String(Math.floor(elapsed)).padStart(2, '0')} / 0:30`
+      }
+
+      updateBubble()
+      this.timerInterval = setInterval(updateBubble, 100)
     } catch (err) {
       console.error('Mic access denied', err)
-      this.btn.textContent = '\u{274C}'
     }
   },
 
