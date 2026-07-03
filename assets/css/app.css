@@ -4,108 +4,124 @@
 
 @keyframes float {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(-12px) rotate(1deg); }
-  75% { transform: translateY(-6px) rotate(-1deg); }
+  25% { transform: translateY(-14px) rotate(1deg); }
+  75% { transform: translateY(-5px) rotate(-1deg); }
 }
 
 @keyframes float-reverse {
   0%, 100% { transform: translateY(0px) rotate(0deg); }
-  25% { transform: translateY(10px) rotate(-1deg); }
-  75% { transform: translateY(-8px) rotate(1deg); }
+  25% { transform: translateY(12px) rotate(-1.5deg); }
+  75% { transform: translateY(-10px) rotate(1deg); }
 }
 
 @keyframes float-slow {
   0%, 100% { transform: translateY(0px) translateX(0px); }
-  33% { transform: translateY(-16px) translateX(8px); }
-  66% { transform: translateY(8px) translateX(-6px); }
+  33% { transform: translateY(-18px) translateX(6px); }
+  66% { transform: translateY(6px) translateX(-4px); }
 }
 
 @keyframes pulse-glow {
   0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.5); }
-  50% { box-shadow: 0 0 0 20px rgba(239, 68, 68, 0); }
-}
-
-@keyframes shimmer {
-  0%, 100% { opacity: 0.4; }
-  50% { opacity: 0.7; }
+  50% { box-shadow: 0 0 0 24px rgba(239, 68, 68, 0); }
 }
 
 @keyframes pop-in {
   0% { transform: scale(0); opacity: 0; }
-  70% { transform: scale(1.15); opacity: 1; }
+  70% { transform: scale(1.1); opacity: 1; }
   100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes wiggle {
-  0%, 100% { transform: rotate(0deg); }
-  25% { transform: rotate(-3deg); }
-  75% { transform: rotate(3deg); }
 }
 
 .bubble-float { animation: float 6s ease-in-out infinite; }
 .bubble-float-reverse { animation: float-reverse 7s ease-in-out infinite; }
-.bubble-float-slow { animation: float-slow 8s ease-in-out infinite; }
-.bubble-pop-in { animation: pop-in 0.4s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+.bubble-float-slow { animation: float-slow 9s ease-in-out infinite; }
+.bubble-pop-in { animation: pop-in 0.5s cubic-bezier(0.34, 1.56, 0.64, 1) both; }
+
+.bubble-wrapper {
+  border-radius: 50%;
+  transition: transform 0.15s ease;
+  outline: none;
+  border: none;
+  background: transparent;
+  padding: 0;
+}
+
+.bubble-wrapper:hover {
+  transform: scale(1.08);
+}
+
+.bubble-wrapper:active {
+  transform: scale(1.2);
+}
 
 .bubble {
   border-radius: 50%;
-  background: radial-gradient(circle at 35% 35%, rgba(255,255,255,0.5), rgba(200,220,255,0.2) 50%, rgba(180,200,240,0.4) 100%);
+  background: transparent;
   box-shadow:
-    0 4px 20px rgba(150, 180, 220, 0.3),
-    inset 0 -4px 12px rgba(120, 160, 220, 0.2),
-    inset 0 4px 12px rgba(255, 255, 255, 0.6);
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+    0 0 0 2px rgba(255, 255, 255, 0.15),
+    0 4px 24px rgba(150, 170, 210, 0.25),
+    inset 0 -3px 8px rgba(100, 140, 200, 0.15),
+    inset 0 3px 8px rgba(255, 255, 255, 0.25);
+  position: relative;
 }
 
-.bubble:hover {
-  transform: scale(1.12);
-  box-shadow:
-    0 8px 30px rgba(130, 160, 240, 0.4),
-    inset 0 -4px 12px rgba(100, 140, 210, 0.25),
-    inset 0 4px 12px rgba(255, 255, 255, 0.7);
+.bubble::after {
+  content: "";
+  position: absolute;
+  top: 12%;
+  left: 18%;
+  width: 30%;
+  height: 22%;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.5), transparent 70%);
+  border-radius: 50%;
+  pointer-events: none;
 }
 
-.bubble:active {
-  transform: scale(1.25);
+.bubble-wrapper:hover .bubble {
   box-shadow:
-    0 0 0 8px rgba(180, 200, 255, 0.3),
-    0 8px 30px rgba(130, 160, 240, 0.2);
+    0 0 0 2px rgba(255, 255, 255, 0.2),
+    0 8px 36px rgba(140, 170, 230, 0.35),
+    inset 0 -3px 8px rgba(100, 140, 200, 0.2),
+    inset 0 3px 8px rgba(255, 255, 255, 0.35);
 }
 
 .bubble-img {
   border-radius: 50%;
   object-fit: cover;
+  display: block;
+  opacity: 0.85;
 }
 
 .record-btn {
-  width: 96px;
-  height: 96px;
+  width: 88px;
+  height: 88px;
   border-radius: 50%;
   background: radial-gradient(circle at 40% 40%, #ff6b6b, #dc2626 70%, #991b1b);
   box-shadow:
-    0 8px 32px rgba(220, 38, 38, 0.35),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.2),
-    inset 0 4px 8px rgba(255, 255, 255, 0.15);
+    0 6px 28px rgba(220, 38, 38, 0.3),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 3px 6px rgba(255, 255, 255, 0.15);
   transition: all 0.2s ease;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 40px;
+  font-size: 36px;
   cursor: pointer;
   user-select: none;
   -webkit-user-select: none;
+  border: none;
+  outline: none;
 }
 
 .record-btn:hover {
-  transform: scale(1.08);
+  transform: scale(1.06);
   box-shadow:
-    0 12px 40px rgba(220, 38, 38, 0.45),
-    inset 0 -4px 8px rgba(0, 0, 0, 0.2),
-    inset 0 4px 8px rgba(255, 255, 255, 0.15);
+    0 10px 36px rgba(220, 38, 38, 0.4),
+    inset 0 -3px 6px rgba(0, 0, 0, 0.25),
+    inset 0 3px 6px rgba(255, 255, 255, 0.15);
 }
 
 .record-btn:active {
-  transform: scale(0.92);
+  transform: scale(0.9);
 }
 
 .record-btn.recording {
@@ -115,10 +131,14 @@
 
 .sky-bg {
   background: linear-gradient(180deg,
-    #e8f0fe 0%,
-    #dbe8fc 15%,
-    #e8d5f5 40%,
-    #f5e1d5 65%,
-    #fef7e8 100%
+    #eef3ff 0%,
+    #e4ecfc 12%,
+    #eadcf7 35%,
+    #f6e6dc 60%,
+    #fef8ef 100%
   );
+}
+
+* {
+  -webkit-tap-highlight-color: transparent;
 }

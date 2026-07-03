@@ -101,6 +101,8 @@ export const AudioRecorder = {
 
         if (this.chunks.length === 0) return
 
+        const duration = Math.min((Date.now() - this.startTime) / 1000, MAX_DURATION)
+
         const blob = new Blob(this.chunks, { type: 'audio/webm' })
         const arrayBuffer = await blob.arrayBuffer()
         const bytes = new Uint8Array(arrayBuffer)
@@ -114,7 +116,7 @@ export const AudioRecorder = {
             'Content-Type': 'application/json',
             'x-csrf-token': csrfToken,
           },
-          body: JSON.stringify({ image_base64: base64 }),
+          body: JSON.stringify({ image_base64: base64, duration: duration }),
         })
       }
 

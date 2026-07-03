@@ -8,8 +8,8 @@ defmodule VoiceBbs.Posts do
     GenServer.start_link(__MODULE__, %{posts: [], counter: 0}, name: __MODULE__)
   end
 
-  def add_post(png_data) do
-    GenServer.call(__MODULE__, {:add_post, png_data})
+  def add_post(png_data, duration_sec) do
+    GenServer.call(__MODULE__, {:add_post, png_data, duration_sec})
   end
 
   def list_posts do
@@ -24,15 +24,18 @@ defmodule VoiceBbs.Posts do
   end
 
   @impl true
-  def handle_call({:add_post, png_data}, _from, state) do
+  def handle_call({:add_post, png_data, duration_sec}, _from, state) do
     id = state.counter + 1
     filename = "#{id}.png"
     path = Path.join(uploads_dir(), filename)
     File.write!(path, png_data)
 
+    dur = round(duration_sec * 10) / 10
+
     post = %{
       id: id,
       url: "/uploads/#{filename}",
+      duration: dur,
       timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
     }
 
