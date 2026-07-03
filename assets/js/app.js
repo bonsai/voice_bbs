@@ -1,0 +1,64 @@
+import "phoenix_html"
+import {Socket} from "phoenix"
+import {LiveSocket} from "phoenix_live_view"
+import topbar from "../vendor/topbar"
+import {AudioRecorder} from "./hooks/audio_recorder"
+
+let Hooks = { AudioRecorder }
+
+let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
+let liveSocket = new LiveSocket("/live", Socket, {
+  longPollFallbackMs: 2500,
+  params: {_csrf_token: csrfToken},
+  hooks: Hooks
+})
+
+topbar.config({barColors: {0: "#29d"}, shadowColor: "rgba(0, 0, 0, .3)"})
+window.addEventListener("phx:page-loading-start", _info => topbar.show(300))
+window.addEventListener("phx:page-loading-stop", _info => topbar.hide())
+
+liveSocket.connect()
+
+window.liveSocket = liveSocket
+
+async function decodePNGToAudio(url) {
+  const img = new Image()
+  img.crossOrigin = "anonymous"
+  img.src = url
+  await img.decode()
+
+  const canvas = document.createElement("canvas")
+  canvas.width = img.width
+  canvas.height = img.height
+  const ctx = canvas.getContext("2d", { willReadFrequently: true })
+  ctx.drawImage(img, 0, 0)
+
+  const imageData = ctx.getImageData(0, 0, img.width, img.height)
+  const pixels = imageData.data
+
+  const lenView = new DataView(new ArrayBuffer(4))
+  lenView.setUint8(0, pixels[0])
+  lenView.setUint8(1, pixels[1])
+  lenView.setUint8(2, pixels[2])
+  lenView.setUint8(3, pixels[4])
+
+  const dataLength = lenView.getUint32(0, false)
+
+  const audioBytes = new Uint8Array(dataLength)
+  for (let i = 0; i < dataLength; i++) {
+    const byteIdx = i + 4
+    const pixelIdx = Math.floor(byteIdx / 3) * 4
+    const channel = byteIdx % 3
+    audioBytes[i] = pixels[pixelIdx + channel]
+  }
+
+  return new Blob([audioBytes], { type: "audio/webm" })
+}
+
+window.addEventListener("play-audio", async (e) => {
+  const url = e.detail.url
+  const blob = await decodePNGToAudio(url)
+  const audioUrl = URL.createObjectURL(blob)
+  const audio = new Audio(audioUrl)
+  audio.play()
+})
