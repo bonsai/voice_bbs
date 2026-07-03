@@ -13,12 +13,16 @@ defmodule VoiceBbsWeb.BoardLive do
 
     {:ok,
      socket
-     |> stream(:posts, posts)}
+     |> stream(:posts, posts)
+     |> assign(:post_count, length(posts))}
   end
 
   @impl true
   def handle_info({:new_post, post}, socket) do
-    {:noreply, stream_insert(socket, :posts, post, at: 0)}
+    {:noreply,
+     socket
+     |> stream_insert(:posts, post, at: 0)
+     |> update(:post_count, & &1 + 1)}
   end
 
   @impl true
@@ -76,7 +80,7 @@ defmodule VoiceBbsWeb.BoardLive do
           </span>
         </div>
 
-        <div :if={Enum.empty?(@streams.posts)} class="text-center py-20 w-full">
+        <div :if={@post_count == 0} class="text-center py-20 w-full">
           <div class="text-6xl mb-4 shimmer" style="animation:shimmer 2s ease-in-out infinite">🫧</div>
           <p class="text-purple-400/50 text-sm">press the mic to speak</p>
         </div>
