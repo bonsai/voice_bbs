@@ -1,18 +1,12 @@
 services:
   - type: web
     name: voice-bbs
-    env: elixir
+    env: docker
     region: singapore
     plan: free
-    buildCommand: mix deps.get && mix assets.deploy
-    startCommand: mix phx.server
     healthCheckPath: /healthz
     envVars:
       - key: SECRET_KEY_BASE
         generateValue: true
-      - key: MIX_ENV
-        value: prod
       - key: PHX_HOST
         value: bubblevoice.onrender.com
-      - key: PHX_SERVER
-        value: "true"
