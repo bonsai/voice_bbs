@@ -9,8 +9,8 @@ defmodule VoiceBbs.Posts do
     GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def add_post(device_id, png_data, duration_sec, source \\ "board") do
-    GenServer.call(__MODULE__, {:add_post, device_id, png_data, duration_sec, source})
+  def add_post(device_id, png_data, duration_sec, source \\ "board", room_id \\ nil) do
+    GenServer.call(__MODULE__, {:add_post, device_id, png_data, duration_sec, source, room_id})
   end
 
   def list_posts do
@@ -41,7 +41,7 @@ defmodule VoiceBbs.Posts do
   import Ecto.Query, only: [where: 2, order_by: 2]
 
   @impl true
-  def handle_call({:add_post, device_id, png_data, duration_sec, source}, _from, state) do
+  def handle_call({:add_post, device_id, png_data, duration_sec, source, room_id}, _from, state) do
     count = VoiceBbs.Repo.aggregate(
       where(VoiceBbs.Post, device_id: ^device_id),
       :count,
@@ -64,7 +64,8 @@ defmodule VoiceBbs.Posts do
         url: "/uploads/#{filename}",
         duration: dur,
         filename: filename,
-        source: source
+        source: source,
+        room_id: room_id
       })
 
       Phoenix.PubSub.broadcast(@pubsub, @topic, {:new_post, post_schema})

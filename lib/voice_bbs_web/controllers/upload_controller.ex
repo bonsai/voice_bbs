@@ -45,6 +45,7 @@ defmodule VoiceBbsWeb.UploadController do
           duration: p.duration,
           device_id: p.device_id,
           source: p.source,
+          room_id: p.room_id,
           inserted_at: p.inserted_at
         }
       end)
@@ -64,6 +65,7 @@ defmodule VoiceBbsWeb.UploadController do
   def create_room(conn, params) do
     source = Map.get(params, "source", "board")
     device_id = Map.get(params, "device_id", "api-" <> Base.encode16(:crypto.strong_rand_bytes(4), case: :lower))
+    room_id = Ecto.UUID.generate()
 
     png = <<137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82,
       0, 0, 0, 1, 0, 0, 0, 1, 8, 2, 0, 0, 0, 144, 119, 83, 222,
@@ -71,9 +73,9 @@ defmodule VoiceBbsWeb.UploadController do
       3, 0, 1, 55, 46, 48, 42, 0, 0, 0, 0, 73, 69, 78, 68, 174,
       66, 96, 130>>
 
-    case VoiceBbs.Posts.add_post(device_id, png, 1.0, source) do
+    case VoiceBbs.Posts.add_post(device_id, png, 1.0, source, room_id) do
       {:ok, post} ->
-        json(conn, %{ok: true, id: post.id, url: post.url, source: source})
+        json(conn, %{ok: true, id: post.id, url: post.url, source: source, room_id: room_id})
       {:error, :limit_reached} ->
         json(conn, %{ok: false, error: "limit_reached"})
     end
@@ -81,27 +83,34 @@ defmodule VoiceBbsWeb.UploadController do
 
   def tree(conn, _params) do
     posts = VoiceBbs.Posts.list_posts()
-    {rooms, others} = Enum.split_with(posts, &(&1.source == "board"))
+    with_room = Enum.filter(posts, &(&1.room_id != nil))
+    without_room = Enum.filter(posts, &(&1.room_id == nil))
+
+    rooms = with_room
+    |> Enum.group_by(& &1.room_id)
+    |> Enum.map(fn {room_id, items} -> %{
+      room_id: room_id,
+      count: length(items),
+      posts: format_posts(items)
+    } end)
 
     json(conn, %{
       ok: true,
-      room: format_branch(rooms),
-      other: format_branch(others)
+      rooms: rooms,
+      other: %{count: length(without_room), posts: format_posts(without_room)}
     })
   end
 
-  defp format_branch(posts) do
-    %{
-      count: length(posts),
-      posts: Enum.map(posts, fn p -> %{
-        id: p.id,
-        url: p.url,
-        duration: p.duration,
-        source: p.source,
-        device_id: p.device_id,
-        inserted_at: p.inserted_at
-      end end)
-    }
+  defp format_posts(posts) do
+    Enum.map(posts, fn p -> %{
+      id: p.id,
+      url: p.url,
+      duration: p.duration,
+      source: p.source,
+      room_id: p.room_id,
+      device_id: p.device_id,
+      inserted_at: p.inserted_at
+    } end)
   end
 
   defp parse_duration(d) when is_number(d), do: max(d, 0.1)
