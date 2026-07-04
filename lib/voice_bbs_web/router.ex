@@ -33,6 +33,7 @@ defmodule VoiceBbsWeb.Router do
     pipe_through :api
 
     get "/posts", UploadController, :index
+    get "/tree", UploadController, :tree
     post "/upload", UploadController, :create
     post "/migrate", UploadController, :migrate
     post "/create-room", UploadController, :create_room

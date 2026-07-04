@@ -79,6 +79,31 @@ defmodule VoiceBbsWeb.UploadController do
     end
   end
 
+  def tree(conn, _params) do
+    posts = VoiceBbs.Posts.list_posts()
+    {rooms, others} = Enum.split_with(posts, &(&1.source == "board"))
+
+    json(conn, %{
+      ok: true,
+      room: format_branch(rooms),
+      other: format_branch(others)
+    })
+  end
+
+  defp format_branch(posts) do
+    %{
+      count: length(posts),
+      posts: Enum.map(posts, fn p -> %{
+        id: p.id,
+        url: p.url,
+        duration: p.duration,
+        source: p.source,
+        device_id: p.device_id,
+        inserted_at: p.inserted_at
+      end end)
+    }
+  end
+
   defp parse_duration(d) when is_number(d), do: max(d, 0.1)
   defp parse_duration(_d), do: 0.1
 end
