@@ -30,13 +30,13 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("FLY_APP_NAME"), do: [:inet6], else: []
 
-  use_ssl = not (System.get_env("FLY_APP_NAME") || System.get_env("RAILWAY_SERVICE_ID"))
+  on_platform = System.get_env("FLY_APP_NAME") || System.get_env("RAILWAY_SERVICE_ID")
 
   config :voice_bbs, VoiceBbs.Repo,
     url: database_url,
     pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
     socket_options: maybe_ipv6,
-    ssl: use_ssl
+    ssl: is_nil(on_platform)
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
   # want to use a different value for prod and you most likely don't want
