@@ -37,4 +37,4 @@ ENV LANG=C.UTF-8
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "/app/bin/voice_bbs eval 'Ecto.Migrator.with_repo(VoiceBbs.Repo, &:up/1, all: true)' && /app/bin/voice_bbs start"]
+CMD ["/app/bin/voice_bbs", "start"]

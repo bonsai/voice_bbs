@@ -54,6 +54,11 @@ defmodule VoiceBbsWeb.UploadController do
     json(conn, %{ok: true})
   end
 
+  def migrate(conn, _params) do
+    Ecto.Migrator.run(VoiceBbs.Repo, :up, all: true)
+    json(conn, %{ok: true, message: "migrated"})
+  end
+
   defp parse_duration(d) when is_number(d), do: max(d, 0.1)
   defp parse_duration(_d), do: 0.1
 end

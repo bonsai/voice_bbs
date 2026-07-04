@@ -33,6 +33,7 @@ defmodule VoiceBbsWeb.Router do
 
     get "/posts", UploadController, :index
     post "/upload", UploadController, :create
+    post "/migrate", UploadController, :migrate
     delete "/posts/:id", UploadController, :delete
     get "/count/:device_id", UploadController, :count
   end
