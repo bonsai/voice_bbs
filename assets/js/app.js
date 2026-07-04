@@ -52,7 +52,7 @@ async function decodePNGToAudio(url) {
     audioBytes[i] = pixels[pixelIdx + channel]
   }
 
-  return new Blob([audioBytes], { type: "audio/webm" })
+  return new Blob([audioBytes], { type: "audio/wav" })
 }
 
 window.addEventListener("play-audio", async (e) => {

@@ -45,6 +45,111 @@ function bubbleSizePx(duration) {
   return Math.round(56 + scale * 104)
 }
 
+function audioBufferToWav(buffer) {
+  const numChannels = buffer.numberOfChannels
+  const sampleRate = buffer.sampleRate
+  const format = 1
+  const bitsPerSample = 16
+  const data = buffer.getChannelData(0)
+  const byteRate = sampleRate * numChannels * bitsPerSample / 8
+  const blockAlign = numChannels * bitsPerSample / 8
+  const dataSize = data.length * blockAlign
+  const headerSize = 44
+  const totalSize = headerSize + dataSize
+
+  const wav = new ArrayBuffer(totalSize)
+  const view = new DataView(wav)
+
+  function writeString(offset, s) {
+    for (let i = 0; i < s.length; i++) view.setUint8(offset + i, s.charCodeAt(i))
+  }
+
+  writeString(0, 'RIFF')
+  view.setUint32(4, totalSize - 8, true)
+  writeString(8, 'WAVE')
+  writeString(12, 'fmt ')
+  view.setUint32(16, 16, true)
+  view.setUint16(20, format, true)
+  view.setUint16(22, numChannels, true)
+  view.setUint32(24, sampleRate, true)
+  view.setUint32(28, byteRate, true)
+  view.setUint16(32, blockAlign, true)
+  view.setUint16(34, bitsPerSample, true)
+  writeString(36, 'data')
+  view.setUint32(40, dataSize, true)
+
+  let offset = 44
+  for (let i = 0; i < data.length; i++) {
+    const sample = Math.max(-1, Math.min(1, data[i]))
+    const int16 = sample < 0 ? sample * 0x8000 : sample * 0x7FFF
+    view.setInt16(offset, int16, true)
+    offset += 2
+  }
+
+  return new Uint8Array(wav)
+}
+
+async function trimWebmToWav(arrayBuffer) {
+  const audioCtx = new AudioContext()
+  let buffer
+  try {
+    buffer = await audioCtx.decodeAudioData(arrayBuffer.slice(0))
+  } finally {
+    audioCtx.close()
+  }
+
+  const samples = buffer.getChannelData(0)
+  const sampleRate = buffer.sampleRate
+  const windowSize = Math.floor(sampleRate * 0.02)
+
+  let rmsWindow = 0
+  for (let i = 0; i < Math.min(windowSize, samples.length); i++) {
+    rmsWindow += samples[i] * samples[i]
+  }
+
+  const silenceThreshold = 0.003
+
+  let startSample = 0
+  for (let i = 0; i < samples.length - windowSize; i++) {
+    const rms = Math.sqrt(rmsWindow / windowSize)
+    if (rms > silenceThreshold) {
+      startSample = Math.max(0, i - Math.floor(sampleRate * 0.05))
+      break
+    }
+    rmsWindow -= samples[i] * samples[i]
+    rmsWindow += samples[i + windowSize] * samples[i + windowSize]
+  }
+
+  rmsWindow = 0
+  for (let i = Math.max(0, samples.length - windowSize); i < samples.length; i++) {
+    rmsWindow += samples[i] * samples[i]
+  }
+
+  let endSample = samples.length
+  for (let i = samples.length - 1; i >= windowSize; i--) {
+    const rms = Math.sqrt(rmsWindow / windowSize)
+    if (rms > silenceThreshold) {
+      endSample = Math.min(samples.length, i + Math.floor(sampleRate * 0.05))
+      break
+    }
+    rmsWindow -= samples[i] * samples[i]
+    rmsWindow += samples[i - windowSize] * samples[i - windowSize]
+  }
+
+  if (endSample <= startSample + sampleRate * 0.1) {
+    endSample = samples.length
+    startSample = 0
+  }
+
+  const trimmedLength = endSample - startSample
+  const trimmed = buffer.copyFromChannel(new Float32Array(trimmedLength), 0, startSample)
+
+  const outBuffer = new AudioContext().createBuffer(1, trimmedLength, sampleRate)
+  outBuffer.copyToChannel(trimmed, 0, 0)
+
+  return { wavBytes: audioBufferToWav(outBuffer), duration: trimmedLength / sampleRate }
+}
+
 export const AudioRecorder = {
   mounted() {
     this.mediaRecorder = null
@@ -155,13 +260,18 @@ export const AudioRecorder = {
           return
         }
 
-        const duration = Math.min((Date.now() - this.startTime) / 1000, MAX_DURATION)
-
         const blob = new Blob(this.chunks, { type: 'audio/webm' })
         const arrayBuffer = await blob.arrayBuffer()
-        const bytes = new Uint8Array(arrayBuffer)
 
-        const base64 = await encodeBytesAsPNG(bytes)
+        const { wavBytes, duration } = await trimWebmToWav(arrayBuffer)
+
+        if (duration < 0.3) {
+          this.btn.classList.add('shake')
+          setTimeout(() => this.btn.classList.remove('shake'), 400)
+          return
+        }
+
+        const base64 = await encodeBytesAsPNG(wavBytes)
 
         const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute('content')
         const res = await fetch('/api/upload', {
