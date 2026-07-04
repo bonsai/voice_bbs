@@ -77,7 +77,7 @@ defmodule VoiceBbsWeb.TestLive do
         </div>
 
         <button phx-click="make-room" class="w-full bg-purple-500 text-white text-sm py-2.5 rounded-lg hover:bg-purple-600 transition">
-          create room
+          new
         </button>
 
         <p :if={@error_msg} class="text-xs text-red-400 text-center"><%= @error_msg %></p>

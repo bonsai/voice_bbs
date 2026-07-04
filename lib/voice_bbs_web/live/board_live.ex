@@ -73,8 +73,8 @@ defmodule VoiceBbsWeb.BoardLive do
       <div class="absolute top-56 left-[15%] w-16 h-16 sm:w-20 sm:h-20">
         <div class="bubble-float w-full h-full">
           <button class="cmd-bubble w-full h-full flex items-center justify-center"
-                  phx-click={JS.dispatch("create-room", detail: %{source: "board"})}>
-            <span class="cmd-text text-[9px] sm:text-[11px] font-bold leading-tight text-center">create<br>room</span>
+                  phx-click={JS.dispatch("new-room", detail: %{source: "board"})}>
+            <span class="cmd-text text-[9px] sm:text-[11px] font-bold leading-tight text-center">new</span>
           </button>
         </div>
       </div>

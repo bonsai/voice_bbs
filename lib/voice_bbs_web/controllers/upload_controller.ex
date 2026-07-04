@@ -62,7 +62,7 @@ defmodule VoiceBbsWeb.UploadController do
     json(conn, %{ok: true, message: "migrated"})
   end
 
-  def create_room(conn, params) do
+  def new(conn, params) do
     source = Map.get(params, "source", "board")
     device_id = Map.get(params, "device_id", "api-" <> Base.encode16(:crypto.strong_rand_bytes(4), case: :lower))
     room_id = Ecto.UUID.generate()
@@ -83,10 +83,9 @@ defmodule VoiceBbsWeb.UploadController do
 
   def tree(conn, _params) do
     posts = VoiceBbs.Posts.list_posts()
-    with_room = Enum.filter(posts, &(&1.room_id != nil))
-    without_room = Enum.filter(posts, &(&1.room_id == nil))
 
-    rooms = with_room
+    rooms = posts
+    |> Enum.filter(&(&1.room_id != nil))
     |> Enum.group_by(& &1.room_id)
     |> Enum.map(fn {room_id, items} -> %{
       room_id: room_id,
@@ -94,10 +93,17 @@ defmodule VoiceBbsWeb.UploadController do
       posts: format_posts(items)
     } end)
 
+    by_source = Enum.group_by(posts, &(&1.source || "board"))
+    sources = Enum.map(by_source, fn {src, items} -> %{
+      source: src,
+      count: length(items),
+      posts: format_posts(items)
+    } end)
+
     json(conn, %{
       ok: true,
       rooms: rooms,
-      other: %{count: length(without_room), posts: format_posts(without_room)}
+      sources: sources
     })
   end
 

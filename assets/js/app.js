@@ -103,9 +103,9 @@ window.addEventListener("speak-onboard", (e) => {
   speechSynthesis.speak(utterance)
 })
 
-window.addEventListener("create-room", async () => {
+window.addEventListener("new-room", async () => {
   const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute('content')
-  await fetch('/api/create-room', {
+  await fetch('/api/new', {
     method: 'POST',
     headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
     body: JSON.stringify({ source: "board" }),
