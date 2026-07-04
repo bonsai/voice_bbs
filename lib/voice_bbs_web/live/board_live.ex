@@ -9,12 +9,20 @@ defmodule VoiceBbsWeb.BoardLive do
       Phoenix.PubSub.subscribe(VoiceBbs.PubSub, @topic)
     end
 
-    posts = VoiceBbs.Posts.list_posts()
+    posts = VoiceBbs.Posts.list_posts() |> Enum.filter(&(&1.source == "board"))
 
     {:ok,
      socket
      |> stream(:posts, posts)
-     |> assign(:post_count, length(posts))}
+     |> assign(:post_count, length(posts))
+     |> push_onboarding()}
+  end
+
+  defp push_onboarding(socket) do
+    socket
+    |> push_event("speak-onboard", %{
+      text: "Welcome to voice bubble. Tap a command bubble to navigate. Hold mic to record your voice."
+    })
   end
 
   @impl true
@@ -45,37 +53,37 @@ defmodule VoiceBbsWeb.BoardLive do
   def render(assigns) do
     ~H"""
     <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative select-none">
-      <%!-- dummy TTS bubbles (always floating) --%>
+      <%!-- Command bubbles (navigation) --%>
       <div class="absolute top-8 left-[5%] w-20 h-20 sm:w-24 sm:h-24">
         <div class="bubble-float-slow w-full h-full">
-          <button class="bubble w-full h-full opacity-50 bubble-btn"
-                  phx-click={JS.dispatch("speak-tts", detail: %{text: "hello"})}>
-            <span class="bubble-text text-[12px] sm:text-[15px] font-medium text-purple-400/60">hello</span>
-          </button>
+          <a href="/test" class="cmd-bubble w-full h-full flex items-center justify-center"
+             phx-click={JS.dispatch("speak-tts", detail: %{text: "open test page, check database and microphone"})}>
+            <span class="cmd-text text-[11px] sm:text-[13px] font-bold">test</span>
+          </a>
         </div>
       </div>
-      <div class="absolute top-32 right-[8%] w-12 h-12 sm:w-14 sm:h-14">
+      <div class="absolute top-32 right-[8%] w-16 h-16 sm:w-20 sm:h-20">
         <div class="bubble-float-reverse w-full h-full">
-          <button class="bubble w-full h-full opacity-45 bubble-btn"
-                  phx-click={JS.dispatch("speak-tts", detail: %{text: "nice"})}>
-            <span class="bubble-text text-[10px] sm:text-[11px] font-medium text-pink-400/60">nice</span>
-          </button>
+          <a href="/yon" class="cmd-bubble w-full h-full flex items-center justify-center"
+             phx-click={JS.dispatch("speak-tts", detail: %{text: "go to yon page"})}>
+            <span class="cmd-text text-[10px] sm:text-[12px] font-bold">yon</span>
+          </a>
         </div>
       </div>
-      <div class="hidden sm:block absolute bottom-36 left-[12%] w-20 h-20">
+      <div class="absolute top-56 left-[15%] w-16 h-16 sm:w-20 sm:h-20">
         <div class="bubble-float w-full h-full">
-          <button class="bubble w-full h-full opacity-50 bubble-btn"
-                  phx-click={JS.dispatch("speak-tts", detail: %{text: "thanks"})}>
-            <span class="bubble-text text-[13px] font-medium text-yellow-600/50">thanks</span>
+          <button class="cmd-bubble w-full h-full flex items-center justify-center"
+                  phx-click={JS.dispatch("create-room", detail: %{source: "board"})}>
+            <span class="cmd-text text-[9px] sm:text-[11px] font-bold leading-tight text-center">create<br>room</span>
           </button>
         </div>
       </div>
-      <div class="hidden sm:block absolute bottom-24 right-[18%] w-10 h-10">
+      <div class="absolute bottom-32 right-[12%] w-14 h-14 sm:w-16 sm:h-16">
         <div class="bubble-float-slow w-full h-full">
-          <button class="bubble w-full h-full opacity-40 bubble-btn"
-                  phx-click={JS.dispatch("speak-tts", detail: %{text: "wow"})}>
-            <span class="bubble-text text-[9px] font-medium text-emerald-400/60">wow</span>
-          </button>
+          <a href="/admin" class="cmd-bubble w-full h-full flex items-center justify-center"
+             phx-click={JS.dispatch("speak-tts", detail: %{text: "admin management page"})}>
+            <span class="cmd-text text-[9px] sm:text-[10px] font-bold">admin</span>
+          </a>
         </div>
       </div>
 

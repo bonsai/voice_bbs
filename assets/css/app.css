@@ -241,3 +241,27 @@
   -webkit-user-select: none;
   user-select: none;
 }
+
+/* ── Command bubbles (navigation) ── */
+
+.cmd-bubble {
+  border-radius: 50%;
+  background: linear-gradient(135deg, rgba(124,58,237,0.85), rgba(236,72,153,0.75));
+  box-shadow: 0 0 0 2px rgba(168,85,247,0.3), 0 4px 16px rgba(124,58,237,0.25);
+  transition: transform 0.15s ease;
+  border: none;
+  outline: none;
+  cursor: pointer;
+  text-decoration: none;
+  -webkit-tap-highlight-color: transparent;
+}
+
+.cmd-bubble:hover { transform: scale(1.1); }
+.cmd-bubble:active { transform: scale(0.92); }
+
+.cmd-text {
+  color: rgba(255,255,255,0.9);
+  pointer-events: none;
+  line-height: 1.2;
+  text-align: center;
+}

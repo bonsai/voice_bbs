@@ -90,6 +90,29 @@ window.addEventListener("play-admin-audio", async (e) => {
   audio.play()
 })
 
+window.addEventListener("speak-onboard", (e) => {
+  if (localStorage.getItem("voice_bbs_onboarded")) return
+  localStorage.setItem("voice_bbs_onboarded", "1")
+  const text = e.detail.text
+  if (!text) return
+  speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.rate = 0.9
+  utterance.pitch = 1.0
+  utterance.lang = "en-US"
+  speechSynthesis.speak(utterance)
+})
+
+window.addEventListener("create-room", async () => {
+  const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute('content')
+  await fetch('/api/create-room', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'x-csrf-token': csrfToken },
+    body: JSON.stringify({ source: "board" }),
+  })
+  window.location.reload()
+})
+
 window.addEventListener("test-mic", async () => {
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
