@@ -56,6 +56,7 @@ export const AudioRecorder = {
     this.analyser = null
     this.dataArray = null
     this.animFrameId = null
+    this.maxVolume = 0
     this.deviceId = this.getDeviceId()
 
     this.btn = this.el.querySelector('#record-btn')
@@ -148,6 +149,12 @@ export const AudioRecorder = {
 
         if (this.chunks.length === 0) return
 
+        if (this.maxVolume < 5) {
+          this.btn.classList.add('shake')
+          setTimeout(() => this.btn.classList.remove('shake'), 400)
+          return
+        }
+
         const duration = Math.min((Date.now() - this.startTime) / 1000, MAX_DURATION)
 
         const blob = new Blob(this.chunks, { type: 'audio/webm' })
@@ -216,6 +223,9 @@ export const AudioRecorder = {
     this.animFrameId = requestAnimationFrame(() => this.drawWaveform())
 
     this.analyser.getByteFrequencyData(this.dataArray)
+
+    const frameMax = Math.max(...this.dataArray)
+    if (frameMax > this.maxVolume) this.maxVolume = frameMax
 
     const rect = this.canvas.getBoundingClientRect()
     const w = rect.width

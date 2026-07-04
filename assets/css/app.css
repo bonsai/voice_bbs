@@ -30,6 +30,14 @@
   50% { box-shadow: 0 0 0 18px rgba(239, 68, 68, 0); }
 }
 
+@keyframes shake {
+  0%, 100% { transform: translateX(0); }
+  20% { transform: translateX(-4px); }
+  40% { transform: translateX(4px); }
+  60% { transform: translateX(-4px); }
+  80% { transform: translateX(4px); }
+}
+
 @keyframes pop-in {
   0% { transform: scale(0); opacity: 0; }
   70% { transform: scale(1.1); opacity: 1; }
@@ -159,6 +167,10 @@
   color: rgba(239,68,68,0.7);
 }
 
+.mic-btn.shake {
+  animation: shake 0.4s ease-in-out;
+}
+
 /* ── Preview bubble (grows during recording) ── */
 
 .preview-bubble {
@@ -220,6 +232,12 @@
   border-color: rgba(239,68,68,0.5);
 }
 
+.mic-btn, .bubble-btn, .bubble-wrapper {
+  touch-action: manipulation;
+}
+
 * {
   -webkit-tap-highlight-color: transparent;
+  -webkit-user-select: none;
+  user-select: none;
 }

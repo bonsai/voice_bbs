@@ -1,8 +1,11 @@
 <!DOCTYPE html>
-<html lang="ja" class="[scrollbar-gutter:stable]">
+<html lang="ja" class="[scrollbar-gutter:stable]" style="overscroll-behavior:none;-webkit-tap-highlight-color:transparent">
   <head>
     <meta charset="utf-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no" />
+    <meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no, viewport-fit=cover" />
+    <meta name="apple-mobile-web-app-capable" content="yes" />
+    <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+    <meta name="theme-color" content="#faf5ff" />
     <meta name="csrf-token" content={get_csrf_token()} />
     <.live_title suffix=" · voice bubble">
       <%= assigns[:page_title] || "voice bubble" %>

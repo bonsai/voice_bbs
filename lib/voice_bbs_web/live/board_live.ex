@@ -44,25 +44,25 @@ defmodule VoiceBbsWeb.BoardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative">
+    <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative select-none">
       <%!-- dummy TTS bubbles (always floating) --%>
-      <div class="absolute top-10 left-[5%] w-24 h-24">
+      <div class="absolute top-8 left-[5%] w-20 h-20 sm:w-24 sm:h-24">
         <div class="bubble-float-slow w-full h-full">
           <button class="bubble w-full h-full opacity-50 bubble-btn"
                   phx-click={JS.dispatch("speak-tts", detail: %{text: "hello"})}>
-            <span class="bubble-text text-[15px] font-medium text-purple-400/60">hello</span>
+            <span class="bubble-text text-[12px] sm:text-[15px] font-medium text-purple-400/60">hello</span>
           </button>
         </div>
       </div>
-      <div class="absolute top-36 right-[10%] w-14 h-14">
+      <div class="absolute top-32 right-[8%] w-12 h-12 sm:w-14 sm:h-14">
         <div class="bubble-float-reverse w-full h-full">
           <button class="bubble w-full h-full opacity-45 bubble-btn"
                   phx-click={JS.dispatch("speak-tts", detail: %{text: "nice"})}>
-            <span class="bubble-text text-[11px] font-medium text-pink-400/60">nice</span>
+            <span class="bubble-text text-[10px] sm:text-[11px] font-medium text-pink-400/60">nice</span>
           </button>
         </div>
       </div>
-      <div class="absolute bottom-36 left-[12%] w-20 h-20">
+      <div class="hidden sm:block absolute bottom-36 left-[12%] w-20 h-20">
         <div class="bubble-float w-full h-full">
           <button class="bubble w-full h-full opacity-50 bubble-btn"
                   phx-click={JS.dispatch("speak-tts", detail: %{text: "thanks"})}>
@@ -70,7 +70,7 @@ defmodule VoiceBbsWeb.BoardLive do
           </button>
         </div>
       </div>
-      <div class="absolute bottom-24 right-[18%] w-10 h-10">
+      <div class="hidden sm:block absolute bottom-24 right-[18%] w-10 h-10">
         <div class="bubble-float-slow w-full h-full">
           <button class="bubble w-full h-full opacity-40 bubble-btn"
                   phx-click={JS.dispatch("speak-tts", detail: %{text: "wow"})}>
@@ -80,8 +80,8 @@ defmodule VoiceBbsWeb.BoardLive do
       </div>
 
       <%!-- header --%>
-      <div class="text-center pt-6 pb-1">
-        <h1 class="text-xl font-bold tracking-wide"
+      <div class="text-center pt-4 sm:pt-6 pb-1">
+        <h1 class="text-lg sm:text-xl font-bold tracking-wide"
             style="background:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
           voice bubble
         </h1>
@@ -89,7 +89,7 @@ defmodule VoiceBbsWeb.BoardLive do
       </div>
 
       <%!-- Floating bubbles --%>
-      <div id="posts" phx-update="stream" class="max-w-lg mx-auto px-6 pb-44 flex flex-wrap justify-center items-center gap-4">
+      <div id="posts" phx-update="stream" class="max-w-lg mx-auto px-4 sm:px-6 pb-48 sm:pb-44 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
         <button
           :for={{id, post} <- @streams.posts}
           id={id}
@@ -106,7 +106,7 @@ defmodule VoiceBbsWeb.BoardLive do
       </div>
 
       <%!-- Mic + preview bubble (fixed bottom) --%>
-      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pb-8 pointer-events-none">
+      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pointer-events-none" style="padding-bottom:max(20px,env(safe-area-inset-bottom,16px))">
         <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
              style="width:0px;height:0px">
           <div class="bubble w-full h-full overflow-hidden opacity-60 flex items-center justify-center">
