@@ -163,6 +163,7 @@ export const AudioRecorder = {
     this.dataArray = null
     this.animFrameId = null
     this.maxVolume = 0
+    this.source = this.el.dataset.source || "board"
     this.deviceId = this.getDeviceId()
 
     this.btn = this.el.querySelector('#record-btn')
@@ -281,7 +282,7 @@ export const AudioRecorder = {
             'Content-Type': 'application/json',
             'x-csrf-token': csrfToken,
           },
-          body: JSON.stringify({ image_base64: base64, duration: duration, device_id: this.deviceId }),
+          body: JSON.stringify({ image_base64: base64, duration: duration, device_id: this.deviceId, source: this.source }),
         })
         const data = await res.json()
         if (data.ok && typeof data.remaining === 'number') {

@@ -76,6 +76,7 @@ defmodule VoiceBbsWeb.AdminLive do
               <div class="text-[10px] text-purple-300/40 mt-0.5 flex gap-3">
                 <span><%= post.duration %>s</span>
                 <span class="truncate"><%= String.slice(post.device_id, 0..7) %></span>
+                <span class="bg-purple-100 text-purple-400 px-1 rounded"><%= post.source || "board" %></span>
                 <span><%= post.inserted_at %></span>
               </div>
             </div>

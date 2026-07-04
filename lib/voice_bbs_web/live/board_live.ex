@@ -106,7 +106,7 @@ defmodule VoiceBbsWeb.BoardLive do
       </div>
 
       <%!-- Mic + preview bubble (fixed bottom) --%>
-      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pointer-events-none" style="padding-bottom:max(20px,env(safe-area-inset-bottom,16px))">
+      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pointer-events-none" style="padding-bottom:max(20px,env(safe-area-inset-bottom,16px))" data-source="board">
         <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
              style="width:0px;height:0px">
           <div class="bubble w-full h-full overflow-hidden opacity-60 flex items-center justify-center">

@@ -7,6 +7,7 @@ defmodule VoiceBbs.Post do
     field :url, :string
     field :duration, :float
     field :filename, :string
+    field :source, :string, default: "board"
 
     timestamps()
   end
@@ -15,7 +16,7 @@ defmodule VoiceBbs.Post do
     import Ecto.Changeset
 
     post
-    |> cast(attrs, [:device_id, :url, :duration, :filename])
+    |> cast(attrs, [:device_id, :url, :duration, :filename, :source])
     |> validate_required([:device_id, :url, :duration, :filename])
   end
 end
