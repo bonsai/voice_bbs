@@ -60,6 +60,14 @@ window.addEventListener("play-audio", async (e) => {
   const blob = await decodePNGToAudio(url)
   const audioUrl = URL.createObjectURL(blob)
   const audio = new Audio(audioUrl)
+
+  const btn = e.target?.closest?.('.bubble-wrapper')
+  if (btn) btn.classList.add('playing')
+
+  audio.addEventListener('ended', () => {
+    if (btn) btn.classList.remove('playing')
+  })
+
   audio.play()
 })
 

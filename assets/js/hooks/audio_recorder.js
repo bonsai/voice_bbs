@@ -52,10 +52,15 @@ export const AudioRecorder = {
     this.stream = null
     this.startTime = 0
     this.timerInterval = null
+    this.audioCtx = null
+    this.analyser = null
+    this.dataArray = null
+    this.animFrameId = null
 
     this.btn = this.el.querySelector('#record-btn')
     this.timer = this.el.querySelector('#timer')
     this.preview = this.el.querySelector('#preview-bubble')
+    this.canvas = this.el.querySelector('#waveform-canvas')
 
     const onDown = (e) => {
       e.preventDefault()
@@ -95,6 +100,7 @@ export const AudioRecorder = {
       }
 
       this.mediaRecorder.onstop = async () => {
+        this.cleanupAudio()
         this.stream.getTracks().forEach((t) => t.stop())
         this.btn.classList.remove('recording')
         this.timer.classList.add('hidden')
@@ -132,6 +138,8 @@ export const AudioRecorder = {
       this.preview.classList.remove('hidden')
       this.preview.classList.add('visible')
 
+      this.setupWaveform()
+
       const updateBubble = () => {
         if (!this.mediaRecorder || this.mediaRecorder.state !== 'recording') return
         const elapsed = Math.min((Date.now() - this.startTime) / 1000, MAX_DURATION)
@@ -148,6 +156,74 @@ export const AudioRecorder = {
     }
   },
 
+  setupWaveform() {
+    try {
+      this.audioCtx = new AudioContext()
+      const source = this.audioCtx.createMediaStreamSource(this.stream)
+      this.analyser = this.audioCtx.createAnalyser()
+      this.analyser.fftSize = 128
+      this.dataArray = new Uint8Array(this.analyser.frequencyBinCount)
+      source.connect(this.analyser)
+      this.drawWaveform()
+    } catch (err) {
+      console.warn('Waveform unavailable', err)
+    }
+  },
+
+  drawWaveform() {
+    if (!this.analyser || !this.canvas) return
+    this.animFrameId = requestAnimationFrame(() => this.drawWaveform())
+
+    this.analyser.getByteFrequencyData(this.dataArray)
+
+    const rect = this.canvas.getBoundingClientRect()
+    const w = rect.width
+    const h = rect.height
+    if (w === 0 || h === 0) return
+
+    this.canvas.width = w * devicePixelRatio
+    this.canvas.height = h * devicePixelRatio
+    const ctx = this.canvas.getContext('2d')
+    ctx.scale(devicePixelRatio, devicePixelRatio)
+
+    ctx.clearRect(0, 0, w, h)
+
+    const barCount = this.dataArray.length
+    const barW = w / barCount
+    const halfH = h / 2
+
+    for (let i = 0; i < barCount; i++) {
+      const val = this.dataArray[i] / 255
+      const barH = val * halfH * 0.9
+      const x = i * barW
+      const y = halfH - barH / 2
+
+      const t = i / barCount
+      const r = Math.round(168 + t * 68)
+      const g = Math.round(85 - t * 13)
+      const b = Math.round(247 - t * 108)
+      ctx.fillStyle = `rgba(${r},${g},${b},0.7)`
+      ctx.fillRect(x + 0.5, y, Math.max(barW - 1, 1), barH)
+    }
+  },
+
+  cleanupAudio() {
+    if (this.animFrameId) {
+      cancelAnimationFrame(this.animFrameId)
+      this.animFrameId = null
+    }
+    if (this.audioCtx) {
+      this.audioCtx.close()
+      this.audioCtx = null
+    }
+    this.analyser = null
+    this.dataArray = null
+    if (this.canvas) {
+      const ctx = this.canvas.getContext('2d')
+      if (ctx) ctx.clearRect(0, 0, this.canvas.width, this.canvas.height)
+    }
+  },
+
   stopRecording() {
     if (this.mediaRecorder && this.mediaRecorder.state === 'recording') {
       this.mediaRecorder.stop()
@@ -155,6 +231,7 @@ export const AudioRecorder = {
   },
 
   destroyed() {
+    this.cleanupAudio()
     clearInterval(this.timerInterval)
     if (this.stream) {
       this.stream.getTracks().forEach((t) => t.stop())

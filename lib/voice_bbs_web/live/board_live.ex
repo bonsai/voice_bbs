@@ -108,8 +108,8 @@ defmodule VoiceBbsWeb.BoardLive do
       <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pb-8 pointer-events-none">
         <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
              style="width:0px;height:0px">
-          <div class="bubble w-full h-full overflow-hidden opacity-60">
-            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,255,255,0.6),rgba(200,220,255,0.25) 50%,rgba(180,200,240,0.35) 100%)"></div>
+          <div class="bubble w-full h-full overflow-hidden opacity-60 flex items-center justify-center">
+            <canvas id="waveform-canvas" class="w-full h-full rounded-full block"></canvas>
           </div>
         </div>
 
