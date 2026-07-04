@@ -1,8 +1,12 @@
-FROM hexpm/elixir:1.14.5-erlang-25.3.2.16-debian-bullseye-20241223
+FROM hexpm/elixir:1.17.3-erlang-27.2.4-debian-bookworm-20250224
 
 WORKDIR /app
 
+RUN apt-get update -qq && apt-get install -y -qq git ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
+
 RUN mix local.hex --force && mix local.rebar --force
+
+ENV MIX_ENV=prod
 
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only prod
@@ -16,7 +20,6 @@ RUN mix assets.setup
 RUN mix assets.deploy
 RUN mix compile
 
-ENV MIX_ENV=prod
 ENV PHX_SERVER=true
 ENV PORT=4000
 

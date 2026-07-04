@@ -44,15 +44,26 @@ defmodule VoiceBbsWeb.BoardLive do
   def render(assigns) do
     ~H"""
     <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative">
-      <%!-- decorative floating orbs --%>
-      <div class="absolute top-16 left-[5%] w-28 h-28 rounded-full opacity-20 bubble-float-slow pointer-events-none"
-           style="background:radial-gradient(circle,rgba(192,132,252,0.5),transparent 70%)">
+      <%!-- dummy bubbles (always floating) --%>
+      <div class="absolute top-12 left-[6%] w-24 h-24 bubble-float-slow pointer-events-none">
+        <div class="bubble w-full h-full opacity-25">
+          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(200,220,255,0.3),rgba(200,180,240,0.15) 60%,transparent 100%)"></div>
+        </div>
       </div>
-      <div class="absolute top-48 right-[8%] w-16 h-16 rounded-full opacity-15 bubble-float-reverse pointer-events-none"
-           style="background:radial-gradient(circle,rgba(244,114,182,0.5),transparent 70%)">
+      <div class="absolute top-36 right-[12%] w-14 h-14 bubble-float-reverse pointer-events-none">
+        <div class="bubble w-full h-full opacity-20">
+          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,200,220,0.3),rgba(240,180,200,0.15) 60%,transparent 100%)"></div>
+        </div>
       </div>
-      <div class="absolute bottom-48 left-[20%] w-20 h-20 rounded-full opacity-10 bubble-float pointer-events-none"
-           style="background:radial-gradient(circle,rgba(251,191,36,0.4),transparent 70%)">
+      <div class="absolute bottom-36 left-[15%] w-20 h-20 bubble-float pointer-events-none">
+        <div class="bubble w-full h-full opacity-20">
+          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,230,180,0.3),rgba(240,210,170,0.15) 60%,transparent 100%)"></div>
+        </div>
+      </div>
+      <div class="absolute bottom-20 right-[20%] w-10 h-10 bubble-float-slow pointer-events-none">
+        <div class="bubble w-full h-full opacity-15">
+          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(180,240,220,0.3),rgba(160,220,200,0.15) 60%,transparent 100%)"></div>
+        </div>
       </div>
 
       <%!-- header --%>
@@ -84,8 +95,8 @@ defmodule VoiceBbsWeb.BoardLive do
         </div>
       </div>
 
-      <%!-- Straw wand + preview bubble (fixed bottom) --%>
-      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pb-6 pointer-events-none">
+      <%!-- Mic + preview bubble (fixed bottom) --%>
+      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pb-8 pointer-events-none">
         <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
              style="width:0px;height:0px">
           <div class="bubble w-full h-full overflow-hidden opacity-60">
@@ -93,19 +104,21 @@ defmodule VoiceBbsWeb.BoardLive do
           </div>
         </div>
 
-        <div class="pointer-events-auto flex flex-col items-center">
-          <div id="timer" class="text-center mb-1 text-purple-400/40 text-[10px] font-mono hidden">
+        <div class="pointer-events-auto flex flex-col items-center gap-1">
+          <div id="timer" class="text-purple-400/40 text-[10px] font-mono hidden">
             0:00 / 0:30
           </div>
 
-          <button id="record-btn" class="wand">
-            <div class="wand-ring">
-              <div class="wand-film"></div>
-            </div>
-            <div class="wand-handle"></div>
+          <button id="record-btn" class="mic-btn">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="mic-icon">
+              <path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/>
+              <path d="M19 10v2a7 7 0 0 1-14 0v-2"/>
+              <line x1="12" y1="19" x2="12" y2="23"/>
+              <line x1="8" y1="23" x2="16" y2="23"/>
+            </svg>
           </button>
 
-          <p class="text-[10px] text-purple-300/20 mt-1 font-light">hold to blow</p>
+          <p class="text-[10px] text-purple-300/20 font-light">hold to record</p>
         </div>
       </div>
     </div>

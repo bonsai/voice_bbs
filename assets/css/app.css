@@ -21,8 +21,8 @@
 }
 
 @keyframes pulse-glow {
-  0%, 100% { box-shadow: 0 0 0 0 rgba(250, 204, 21, 0.4); }
-  50% { box-shadow: 0 0 0 20px rgba(250, 204, 21, 0); }
+  0%, 100% { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.3); }
+  50% { box-shadow: 0 0 0 18px rgba(239, 68, 68, 0); }
 }
 
 @keyframes pop-in {
@@ -31,20 +31,10 @@
   100% { transform: scale(1); opacity: 1; }
 }
 
-@keyframes film-shimmer {
-  0%, 100% { opacity: 0.15; transform: scale(0.92); }
-  50% { opacity: 0.4; transform: scale(1); }
-}
-
 @keyframes bubble-grow {
   0% { transform: scale(0.1); opacity: 0; }
   30% { transform: scale(0.5); opacity: 0.7; }
   100% { transform: scale(1); opacity: 1; }
-}
-
-@keyframes rainbow-shift {
-  0%   { filter: hue-rotate(0deg); }
-  100% { filter: hue-rotate(360deg); }
 }
 
 .bubble-float { animation: float 6s ease-in-out infinite; }
@@ -101,81 +91,47 @@
   opacity: 0.80;
 }
 
-/* ── Bubble Wand ── */
+/* ── Mic Button ── */
 
-.wand {
-  width: 56px;
-  height: 140px;
-  background: transparent;
+.mic-btn {
+  width: 64px;
+  height: 64px;
+  border-radius: 50%;
   border: none;
   outline: none;
   cursor: pointer;
   display: flex;
-  flex-direction: column;
-  align-items: center;
-  gap: 0;
-  padding: 0;
-  -webkit-tap-highlight-color: transparent;
-  transition: transform 0.15s ease;
-}
-
-.wand:hover { transform: scale(1.05); }
-.wand:active { transform: scale(0.95); }
-
-.wand-ring {
-  width: 52px;
-  height: 52px;
-  border-radius: 50%;
-  border: 3px solid rgba(234, 179, 8, 0.5);
-  background: transparent;
-  display: flex;
   align-items: center;
   justify-content: center;
+  -webkit-tap-highlight-color: transparent;
+  transition: all 0.2s ease;
+  background: linear-gradient(135deg, rgba(168,85,247,0.12), rgba(236,72,153,0.08));
   box-shadow:
-    0 0 14px rgba(234, 179, 8, 0.25),
-    inset 0 0 8px rgba(234, 179, 8, 0.1);
-  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+    0 0 0 2px rgba(168,85,247,0.2),
+    0 4px 20px rgba(168,85,247,0.15);
 }
 
-.wand-film {
-  width: 42px;
-  height: 42px;
-  border-radius: 50%;
-  background: radial-gradient(circle at 40% 40%,
-    rgba(168, 85, 247, 0.08),
-    rgba(234, 179, 8, 0.06) 40%,
-    rgba(168, 85, 247, 0.1) 70%,
-    rgba(250, 204, 21, 0.06) 100%);
-  animation: film-shimmer 2s ease-in-out infinite;
-  transition: all 0.3s ease;
+.mic-btn:hover { transform: scale(1.06); }
+.mic-btn:active { transform: scale(0.92); }
+
+.mic-icon {
+  width: 28px;
+  height: 28px;
+  color: rgba(168,85,247,0.5);
+  transition: color 0.2s ease;
 }
 
-.wand.recording .wand-ring {
-  border-color: rgba(168, 85, 247, 0.7);
+.mic-btn.recording {
+  background: linear-gradient(135deg, rgba(239,68,68,0.2), rgba(168,85,247,0.15));
   box-shadow:
-    0 0 22px rgba(168, 85, 247, 0.3),
-    inset 0 0 12px rgba(168, 85, 247, 0.15);
+    0 0 0 3px rgba(239,68,68,0.4),
+    0 0 24px rgba(239,68,68,0.2),
+    0 4px 20px rgba(168,85,247,0.15);
+  animation: pulse-glow 1.2s ease-in-out infinite;
 }
 
-.wand.recording .wand-film {
-  background: radial-gradient(circle at 40% 40%,
-    rgba(250, 204, 21, 0.15),
-    rgba(168, 85, 247, 0.1) 40%,
-    rgba(234, 179, 8, 0.15) 70%,
-    rgba(168, 85, 247, 0.08) 100%);
-  transform: scale(1.08);
-}
-
-.wand-handle {
-  width: 8px;
-  height: 64px;
-  border-radius: 4px;
-  background: linear-gradient(180deg,
-    rgba(180, 180, 180, 0.3) 0%,
-    rgba(220, 220, 220, 0.2) 20%,
-    rgba(160, 160, 160, 0.25) 50%,
-    rgba(200, 200, 200, 0.2) 80%,
-    rgba(180, 180, 180, 0.3) 100%);
+.mic-btn.recording .mic-icon {
+  color: rgba(239,68,68,0.7);
 }
 
 /* ── Preview bubble (grows during recording) ── */
@@ -190,12 +146,6 @@
 
 .preview-bubble.visible {
   animation: bubble-grow 0.3s ease-out;
-}
-
-/* ── Background ── */
-
-.sky-bg {
-  background: #fff;
 }
 
 * {
