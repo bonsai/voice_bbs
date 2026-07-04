@@ -21,6 +21,7 @@ defmodule VoiceBbsWeb.Router do
     live "/yon", YonLive
     live "/admin", AdminLive
     live "/test", TestLive
+    live "/api-list", ApiLive
   end
 
   scope "/", VoiceBbsWeb do
