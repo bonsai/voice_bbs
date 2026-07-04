@@ -37,13 +37,15 @@ defmodule VoiceBbsWeb.UploadController do
 
     json(conn, %{
       ok: true,
-      posts: Enum.map(posts, fn p -> %{
-        id: p.id,
-        url: p.url,
-        duration: p.duration,
-        device_id: p.device_id,
-        inserted_at: p.inserted_at
-      end end)
+      posts: Enum.map(posts, fn p ->
+        %{
+          id: p.id,
+          url: p.url,
+          duration: p.duration,
+          device_id: p.device_id,
+          inserted_at: p.inserted_at
+        }
+      end)
     })
   end
 
