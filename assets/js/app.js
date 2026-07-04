@@ -99,6 +99,8 @@ window.addEventListener("test-mic", async () => {
     window.liveSocket.execJS(document.getElementById("test-page"), [["push", { event: "mic-result", value: { ok: false } }]])
   }
 })
+
+window.addEventListener("play-sequence", async (e) => {
   const urls = e.detail.urls
   for (const url of urls) {
     const blob = await decodePNGToAudio(url)
