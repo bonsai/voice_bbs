@@ -4,6 +4,7 @@ WORKDIR /app
 
 ENV MIX_ENV=prod
 
+RUN apt-get update -qq && apt-get install -y -qq git ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
 RUN mix local.hex --force && mix local.rebar --force
 
 COPY mix.exs mix.lock ./
