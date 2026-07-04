@@ -18,6 +18,7 @@ defmodule VoiceBbsWeb.Router do
     pipe_through :browser
 
     live "/", BoardLive
+    live "/yon", YonLive
   end
 
   scope "/", VoiceBbsWeb do
