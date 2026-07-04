@@ -62,3 +62,14 @@ window.addEventListener("play-audio", async (e) => {
   const audio = new Audio(audioUrl)
   audio.play()
 })
+
+window.addEventListener("speak-tts", (e) => {
+  const text = e.detail.text
+  if (!text) return
+  speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.rate = 1.0
+  utterance.pitch = 1.0
+  utterance.lang = "en-US"
+  speechSynthesis.speak(utterance)
+})

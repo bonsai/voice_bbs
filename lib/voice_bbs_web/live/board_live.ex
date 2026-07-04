@@ -44,33 +44,37 @@ defmodule VoiceBbsWeb.BoardLive do
   def render(assigns) do
     ~H"""
     <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative">
-      <%!-- dummy bubbles (always floating) --%>
-      <div class="absolute top-12 left-[6%] w-24 h-24 pointer-events-none">
+      <%!-- dummy TTS bubbles (always floating) --%>
+      <div class="absolute top-10 left-[5%] w-24 h-24">
         <div class="bubble-float-slow w-full h-full">
-          <div class="bubble w-full h-full opacity-50">
-            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(200,220,255,0.5),rgba(200,180,240,0.25) 60%,transparent 100%)"></div>
-          </div>
+          <button class="bubble w-full h-full opacity-50 bubble-btn"
+                  phx-click={JS.dispatch("speak-tts", detail: %{text: "hello"})}>
+            <span class="bubble-text text-[15px] font-medium text-purple-400/60">hello</span>
+          </button>
         </div>
       </div>
-      <div class="absolute top-36 right-[12%] w-14 h-14 pointer-events-none">
+      <div class="absolute top-36 right-[10%] w-14 h-14">
         <div class="bubble-float-reverse w-full h-full">
-          <div class="bubble w-full h-full opacity-45">
-            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,200,220,0.5),rgba(240,180,200,0.25) 60%,transparent 100%)"></div>
-          </div>
+          <button class="bubble w-full h-full opacity-45 bubble-btn"
+                  phx-click={JS.dispatch("speak-tts", detail: %{text: "nice"})}>
+            <span class="bubble-text text-[11px] font-medium text-pink-400/60">nice</span>
+          </button>
         </div>
       </div>
-      <div class="absolute bottom-36 left-[15%] w-20 h-20 pointer-events-none">
+      <div class="absolute bottom-36 left-[12%] w-20 h-20">
         <div class="bubble-float w-full h-full">
-          <div class="bubble w-full h-full opacity-50">
-            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,230,180,0.5),rgba(240,210,170,0.25) 60%,transparent 100%)"></div>
-          </div>
+          <button class="bubble w-full h-full opacity-50 bubble-btn"
+                  phx-click={JS.dispatch("speak-tts", detail: %{text: "thanks"})}>
+            <span class="bubble-text text-[13px] font-medium text-yellow-600/50">thanks</span>
+          </button>
         </div>
       </div>
-      <div class="absolute bottom-20 right-[20%] w-10 h-10 pointer-events-none">
+      <div class="absolute bottom-24 right-[18%] w-10 h-10">
         <div class="bubble-float-slow w-full h-full">
-          <div class="bubble w-full h-full opacity-40">
-            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(180,240,220,0.5),rgba(160,220,200,0.25) 60%,transparent 100%)"></div>
-          </div>
+          <button class="bubble w-full h-full opacity-40 bubble-btn"
+                  phx-click={JS.dispatch("speak-tts", detail: %{text: "wow"})}>
+            <span class="bubble-text text-[9px] font-medium text-emerald-400/60">wow</span>
+          </button>
         </div>
       </div>
 
@@ -81,13 +85,6 @@ defmodule VoiceBbsWeb.BoardLive do
           voice bubble
         </h1>
         <p class="text-[10px] text-purple-400/30 mt-0.5 font-light">tap to listen</p>
-      </div>
-
-      <%!-- splash (shown only when no posts) --%>
-      <div :if={@post_count == 0} class="text-center pt-16 pb-4 w-full max-w-lg mx-auto px-6">
-        <p class="text-purple-400/25 text-sm font-light leading-relaxed">
-          hold the mic and say something<br />your voice becomes a bubble
-        </p>
       </div>
 
       <%!-- Floating bubbles --%>
