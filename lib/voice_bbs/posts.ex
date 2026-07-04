@@ -99,6 +99,6 @@ defmodule VoiceBbs.Posts do
   end
 
   defp uploads_dir do
-    Path.join(:code.priv_dir(:voice_bbs), "static/uploads")
+    System.get_env("UPLOADS_DIR") || Path.join(:code.priv_dir(:voice_bbs), "static/uploads")
   end
 end

@@ -19,10 +19,13 @@ defmodule VoiceBbsWeb.Endpoint do
   #
   # You should set gzip to true if you are running phx.digest
   # when deploying your static files in production.
-  plug Plug.Static,
-    at: "/uploads",
-    from: {:voice_bbs, "priv/static/uploads"},
-    gzip: false
+  plug :serve_uploads
+
+  def serve_uploads(conn, _opts) do
+    uploads_dir = System.get_env("UPLOADS_DIR", Application.app_dir(:voice_bbs, "priv/static/uploads"))
+    opts = Plug.Static.init(at: "/uploads", from: uploads_dir, gzip: false)
+    Plug.Static.call(conn, opts)
+  end
 
   plug Plug.Static,
     at: "/",
