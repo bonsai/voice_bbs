@@ -25,4 +25,4 @@ ENV PORT=4000
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "mix ecto.migrate && mix phx.server"]
+CMD ["sh", "-c", "for i in 1 2 3 4 5; do mix ecto.migrate && break; echo 'DB not ready, retrying...'; sleep 5; done; mix phx.server"]
