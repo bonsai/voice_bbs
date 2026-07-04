@@ -43,29 +43,29 @@ defmodule VoiceBbsWeb.BoardLive do
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="sky-bg min-h-screen font-sans overflow-hidden relative">
+    <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative">
       <%!-- decorative floating orbs --%>
-      <div class="absolute top-20 left-[8%] w-32 h-32 rounded-full opacity-15 bubble-float-slow pointer-events-none"
-           style="background:radial-gradient(circle,rgba(180,210,255,0.8),transparent 70%)">
+      <div class="absolute top-16 left-[5%] w-28 h-28 rounded-full opacity-20 bubble-float-slow pointer-events-none"
+           style="background:radial-gradient(circle,rgba(192,132,252,0.5),transparent 70%)">
       </div>
-      <div class="absolute top-60 right-[10%] w-20 h-20 rounded-full opacity-10 bubble-float-reverse pointer-events-none"
-           style="background:radial-gradient(circle,rgba(220,180,255,0.8),transparent 70%)">
+      <div class="absolute top-48 right-[8%] w-16 h-16 rounded-full opacity-15 bubble-float-reverse pointer-events-none"
+           style="background:radial-gradient(circle,rgba(244,114,182,0.5),transparent 70%)">
       </div>
-      <div class="absolute bottom-40 left-[25%] w-24 h-24 rounded-full opacity-10 bubble-float pointer-events-none"
-           style="background:radial-gradient(circle,rgba(255,200,180,0.8),transparent 70%)">
+      <div class="absolute bottom-48 left-[20%] w-20 h-20 rounded-full opacity-10 bubble-float pointer-events-none"
+           style="background:radial-gradient(circle,rgba(251,191,36,0.4),transparent 70%)">
       </div>
 
-      <%!-- header: floating text --%>
-      <div class="text-center pt-10 pb-2">
-        <h1 class="text-2xl font-bold tracking-wide"
+      <%!-- header --%>
+      <div class="text-center pt-6 pb-1">
+        <h1 class="text-xl font-bold tracking-wide"
             style="background:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
           voice bubble
         </h1>
-        <p class="text-xs text-purple-400/40 mt-0.5 font-light">tap to listen</p>
+        <p class="text-[10px] text-purple-400/30 mt-0.5 font-light">tap to listen</p>
       </div>
 
       <%!-- Floating bubbles --%>
-      <div id="posts" phx-update="stream" class="max-w-2xl mx-auto px-8 pb-40 flex flex-wrap justify-center items-center gap-6">
+      <div id="posts" phx-update="stream" class="max-w-lg mx-auto px-6 pb-44 flex flex-wrap justify-center items-center gap-4">
         <button
           :for={{id, post} <- @streams.posts}
           id={id}
@@ -78,15 +78,14 @@ defmodule VoiceBbsWeb.BoardLive do
           </div>
         </button>
 
-        <div :if={@post_count == 0} class="text-center py-20 w-full">
-          <div class="text-5xl mb-4 opacity-30">🫧</div>
-          <p class="text-purple-400/30 text-sm font-light">blow a bubble</p>
+        <div :if={@post_count == 0} class="text-center py-16 w-full">
+          <div class="text-4xl mb-3 opacity-25">🫧</div>
+          <p class="text-purple-400/20 text-sm font-light">blow a bubble</p>
         </div>
       </div>
 
       <%!-- Straw wand + preview bubble (fixed bottom) --%>
-      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pb-8 pointer-events-none">
-        <%!-- preview bubble: grows in real-time during recording --%>
+      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pb-6 pointer-events-none">
         <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
              style="width:0px;height:0px">
           <div class="bubble w-full h-full overflow-hidden opacity-60">
@@ -94,9 +93,8 @@ defmodule VoiceBbsWeb.BoardLive do
           </div>
         </div>
 
-        <%!-- bubble wand (straw + ring) --%>
         <div class="pointer-events-auto flex flex-col items-center">
-          <div id="timer" class="text-center mb-2 text-purple-400/50 text-xs font-mono hidden">
+          <div id="timer" class="text-center mb-1 text-purple-400/40 text-[10px] font-mono hidden">
             0:00 / 0:30
           </div>
 
@@ -107,7 +105,7 @@ defmodule VoiceBbsWeb.BoardLive do
             <div class="wand-handle"></div>
           </button>
 
-          <p class="text-[11px] text-purple-300/30 mt-2 font-light">hold to blow</p>
+          <p class="text-[10px] text-purple-300/20 mt-1 font-light">hold to blow</p>
         </div>
       </div>
     </div>

@@ -15,7 +15,17 @@ module.exports = {
     extend: {
       colors: {
         brand: "#FD4F00",
-      }
+        pop: {
+          pink: "#ec4899",
+          purple: "#7c3aed",
+          yellow: "#f59e0b",
+          mint: "#34d399",
+          sky: "#38bdf8",
+        }
+      },
+      fontFamily: {
+        pop: ['"Hiragino Sans"', '"Hiragino Kaku Gothic ProN"', '"Noto Sans JP"', 'sans-serif'],
+      },
     },
   },
   plugins: [
