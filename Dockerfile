@@ -33,7 +33,8 @@ ENV PHX_SERVER=true
 ENV PORT=4000
 ENV HOME=/app
 ENV RELEASE_DISTRIBUTION=none
+ENV LANG=C.UTF-8
 
 EXPOSE 4000
 
-CMD ["/app/bin/voice_bbs", "start"]
+CMD ["sh", "-c", "/app/bin/voice_bbs eval 'Ecto.Migrator.with_repo(VoiceBbs.Repo, &:up/1, all: true)' && /app/bin/voice_bbs start"]
