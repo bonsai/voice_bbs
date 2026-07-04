@@ -61,6 +61,24 @@ defmodule VoiceBbsWeb.UploadController do
     json(conn, %{ok: true, message: "migrated"})
   end
 
+  def create_room(conn, params) do
+    source = Map.get(params, "source", "board")
+    device_id = Map.get(params, "device_id", "api-" <> Base.encode16(:crypto.strong_rand_bytes(4), case: :lower))
+
+    png = <<137, 80, 78, 71, 13, 10, 26, 10, 0, 0, 0, 13, 73, 72, 68, 82,
+      0, 0, 0, 1, 0, 0, 0, 1, 8, 2, 0, 0, 0, 144, 119, 83, 222,
+      0, 0, 0, 12, 73, 68, 65, 84, 8, 215, 99, 248, 207, 0, 0, 0,
+      3, 0, 1, 55, 46, 48, 42, 0, 0, 0, 0, 73, 69, 78, 68, 174,
+      66, 96, 130>>
+
+    case VoiceBbs.Posts.add_post(device_id, png, 1.0, source) do
+      {:ok, post} ->
+        json(conn, %{ok: true, id: post.id, url: post.url, source: source})
+      {:error, :limit_reached} ->
+        json(conn, %{ok: false, error: "limit_reached"})
+    end
+  end
+
   defp parse_duration(d) when is_number(d), do: max(d, 0.1)
   defp parse_duration(_d), do: 0.1
 end
