@@ -142,7 +142,8 @@ async function trimWebmToWav(arrayBuffer) {
   }
 
   const trimmedLength = endSample - startSample
-  const trimmed = buffer.copyFromChannel(new Float32Array(trimmedLength), 0, startSample)
+  const trimmed = new Float32Array(trimmedLength)
+  buffer.copyFromChannel(trimmed, 0, startSample)
 
   const outBuffer = new AudioContext().createBuffer(1, trimmedLength, sampleRate)
   outBuffer.copyToChannel(trimmed, 0, 0)
