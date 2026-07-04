@@ -8,7 +8,8 @@
 import Config
 
 config :voice_bbs,
-  generators: [timestamp_type: :utc_datetime]
+  generators: [timestamp_type: :utc_datetime],
+  ecto_repos: [VoiceBbs.Repo]
 
 config :voice_bbs, VoiceBbs.Repo,
   migration_primary_key: [type: :binary_id],

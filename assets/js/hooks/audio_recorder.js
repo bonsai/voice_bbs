@@ -126,7 +126,10 @@ export const AudioRecorder = {
         ? 'audio/webm;codecs=opus'
         : 'audio/webm'
 
-      this.mediaRecorder = new MediaRecorder(this.stream, { mimeType })
+      this.mediaRecorder = new MediaRecorder(this.stream, {
+        mimeType: mimeType,
+        audioBitsPerSecond: 32000,
+      })
       this.chunks = []
 
       this.mediaRecorder.ondataavailable = (e) => {
