@@ -81,3 +81,24 @@ window.addEventListener("speak-tts", (e) => {
   utterance.lang = "en-US"
   speechSynthesis.speak(utterance)
 })
+
+window.addEventListener("play-admin-audio", async (e) => {
+  const url = e.detail.url
+  const blob = await decodePNGToAudio(url)
+  const audioUrl = URL.createObjectURL(blob)
+  const audio = new Audio(audioUrl)
+  audio.play()
+})
+
+window.addEventListener("play-sequence", async (e) => {
+  const urls = e.detail.urls
+  for (const url of urls) {
+    const blob = await decodePNGToAudio(url)
+    const audioUrl = URL.createObjectURL(blob)
+    const audio = new Audio(audioUrl)
+    await new Promise(resolve => {
+      audio.addEventListener('ended', resolve)
+      audio.play()
+    })
+  }
+})

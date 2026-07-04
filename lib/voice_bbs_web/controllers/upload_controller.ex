@@ -32,6 +32,26 @@ defmodule VoiceBbsWeb.UploadController do
     json(conn, %{ok: true, count: count, remaining: VoiceBbs.Posts.max_per_device() - count})
   end
 
+  def index(conn, _params) do
+    posts = VoiceBbs.Posts.list_posts()
+
+    json(conn, %{
+      ok: true,
+      posts: Enum.map(posts, fn p -> %{
+        id: p.id,
+        url: p.url,
+        duration: p.duration,
+        device_id: p.device_id,
+        inserted_at: p.inserted_at
+      end end)
+    })
+  end
+
+  def delete(conn, %{"id" => id}) do
+    VoiceBbs.Posts.delete_post(id)
+    json(conn, %{ok: true})
+  end
+
   defp parse_duration(d) when is_number(d), do: max(d, 0.1)
   defp parse_duration(_d), do: 0.1
 end

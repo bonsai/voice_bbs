@@ -17,6 +17,14 @@ defmodule VoiceBbs.Posts do
     GenServer.call(__MODULE__, :list_posts)
   end
 
+  def delete_post(id) do
+    GenServer.call(__MODULE__, {:delete_post, id})
+  end
+
+  def get_post(id) do
+    VoiceBbs.Repo.get(VoiceBbs.Post, id)
+  end
+
   def count_by_device(device_id) do
     GenServer.call(__MODULE__, {:count_by_device, device_id})
   end
@@ -68,6 +76,16 @@ defmodule VoiceBbs.Posts do
   def handle_call(:list_posts, _from, state) do
     posts = VoiceBbs.Repo.all(order_by(VoiceBbs.Post, desc: :inserted_at))
     {:reply, posts, state}
+  end
+
+  @impl true
+  def handle_call({:delete_post, id}, _from, state) do
+    post = VoiceBbs.Repo.get!(VoiceBbs.Post, id)
+    path = Path.join(uploads_dir(), post.filename)
+    File.rm(path)
+    VoiceBbs.Repo.delete!(post)
+    Phoenix.PubSub.broadcast(@pubsub, @topic, {:delete_post, id})
+    {:reply, :ok, state}
   end
 
   @impl true
