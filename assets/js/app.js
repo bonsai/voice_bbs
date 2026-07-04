@@ -90,7 +90,15 @@ window.addEventListener("play-admin-audio", async (e) => {
   audio.play()
 })
 
-window.addEventListener("play-sequence", async (e) => {
+window.addEventListener("test-mic", async () => {
+  try {
+    const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
+    stream.getTracks().forEach(t => t.stop())
+    window.liveSocket.execJS(document.getElementById("test-page"), [["push", { event: "mic-result", value: { ok: true } }]])
+  } catch (_) {
+    window.liveSocket.execJS(document.getElementById("test-page"), [["push", { event: "mic-result", value: { ok: false } }]])
+  }
+})
   const urls = e.detail.urls
   for (const url of urls) {
     const blob = await decodePNGToAudio(url)
