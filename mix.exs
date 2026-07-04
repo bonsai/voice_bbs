@@ -8,6 +8,7 @@ defmodule VoiceBbs.MixProject do
       elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
+      releases: [{:voice_bbs, [steps: [:assemble, :tar]]}],
       aliases: aliases(),
       deps: deps()
     ]

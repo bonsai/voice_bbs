@@ -1,12 +1,10 @@
-FROM hexpm/elixir:1.17.3-erlang-27.2.4-debian-bookworm-20250224
+FROM hexpm/elixir:1.17.3-erlang-27.2.4-debian-bookworm-20250224 AS builder
 
 WORKDIR /app
 
-RUN apt-get update -qq && apt-get install -y -qq git ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
+ENV MIX_ENV=prod
 
 RUN mix local.hex --force && mix local.rebar --force
-
-ENV MIX_ENV=prod
 
 COPY mix.exs mix.lock ./
 RUN mix deps.get --only prod
@@ -19,10 +17,22 @@ COPY assets/ assets/
 RUN mix assets.setup
 RUN mix assets.deploy
 RUN mix compile
+RUN mix release
+
+FROM debian:bookworm-slim AS runtime
+
+RUN apt-get update -qq && apt-get install -y -qq libstdc++6 openssl libncurses6 ca-certificates && apt-get clean && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /app
+
+COPY --from=builder /app/_build/prod/voice_bbs-*.tar.gz /app/release.tar.gz
+RUN tar xzf release.tar.gz && rm release.tar.gz
 
 ENV PHX_SERVER=true
 ENV PORT=4000
+ENV HOME=/app
+ENV RELEASE_DISTRIBUTION=none
 
 EXPOSE 4000
 
-CMD ["sh", "-c", "for i in 1 2 3 4 5; do mix ecto.migrate && break; echo 'DB not ready, retrying...'; sleep 5; done; mix phx.server"]
+CMD ["/app/bin/voice_bbs", "start"]
