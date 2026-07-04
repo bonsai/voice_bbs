@@ -20,6 +20,7 @@ defmodule VoiceBbsWeb.Router do
     live "/", BoardLive
     live "/yon", YonLive
     live "/admin", AdminLive
+    live "/test", TestLive
   end
 
   scope "/", VoiceBbsWeb do
