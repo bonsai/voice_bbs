@@ -45,24 +45,32 @@ defmodule VoiceBbsWeb.BoardLive do
     ~H"""
     <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative">
       <%!-- dummy bubbles (always floating) --%>
-      <div class="absolute top-12 left-[6%] w-24 h-24 bubble-float-slow pointer-events-none">
-        <div class="bubble w-full h-full opacity-25">
-          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(200,220,255,0.3),rgba(200,180,240,0.15) 60%,transparent 100%)"></div>
+      <div class="absolute top-12 left-[6%] w-24 h-24 pointer-events-none">
+        <div class="bubble-float-slow w-full h-full">
+          <div class="bubble w-full h-full opacity-50">
+            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(200,220,255,0.5),rgba(200,180,240,0.25) 60%,transparent 100%)"></div>
+          </div>
         </div>
       </div>
-      <div class="absolute top-36 right-[12%] w-14 h-14 bubble-float-reverse pointer-events-none">
-        <div class="bubble w-full h-full opacity-20">
-          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,200,220,0.3),rgba(240,180,200,0.15) 60%,transparent 100%)"></div>
+      <div class="absolute top-36 right-[12%] w-14 h-14 pointer-events-none">
+        <div class="bubble-float-reverse w-full h-full">
+          <div class="bubble w-full h-full opacity-45">
+            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,200,220,0.5),rgba(240,180,200,0.25) 60%,transparent 100%)"></div>
+          </div>
         </div>
       </div>
-      <div class="absolute bottom-36 left-[15%] w-20 h-20 bubble-float pointer-events-none">
-        <div class="bubble w-full h-full opacity-20">
-          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,230,180,0.3),rgba(240,210,170,0.15) 60%,transparent 100%)"></div>
+      <div class="absolute bottom-36 left-[15%] w-20 h-20 pointer-events-none">
+        <div class="bubble-float w-full h-full">
+          <div class="bubble w-full h-full opacity-50">
+            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(255,230,180,0.5),rgba(240,210,170,0.25) 60%,transparent 100%)"></div>
+          </div>
         </div>
       </div>
-      <div class="absolute bottom-20 right-[20%] w-10 h-10 bubble-float-slow pointer-events-none">
-        <div class="bubble w-full h-full opacity-15">
-          <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(180,240,220,0.3),rgba(160,220,200,0.15) 60%,transparent 100%)"></div>
+      <div class="absolute bottom-20 right-[20%] w-10 h-10 pointer-events-none">
+        <div class="bubble-float-slow w-full h-full">
+          <div class="bubble w-full h-full opacity-40">
+            <div class="w-full h-full rounded-full" style="background:radial-gradient(circle at 35% 35%,rgba(180,240,220,0.5),rgba(160,220,200,0.25) 60%,transparent 100%)"></div>
+          </div>
         </div>
       </div>
 
@@ -75,24 +83,28 @@ defmodule VoiceBbsWeb.BoardLive do
         <p class="text-[10px] text-purple-400/30 mt-0.5 font-light">tap to listen</p>
       </div>
 
+      <%!-- splash (shown only when no posts) --%>
+      <div :if={@post_count == 0} class="text-center pt-16 pb-4 w-full max-w-lg mx-auto px-6">
+        <p class="text-purple-400/25 text-sm font-light leading-relaxed">
+          hold the mic and say something<br />your voice becomes a bubble
+        </p>
+      </div>
+
       <%!-- Floating bubbles --%>
       <div id="posts" phx-update="stream" class="max-w-lg mx-auto px-6 pb-44 flex flex-wrap justify-center items-center gap-4">
         <button
           :for={{id, post} <- @streams.posts}
           id={id}
-          class={"bubble-pop-in bubble-wrapper cursor-pointer #{float_class(post.id)}"}
+          class="bubble-pop-in bubble-wrapper cursor-pointer"
           style={"width:#{bubble_size(post.duration)}px;height:#{bubble_size(post.duration)}px;animation-delay:#{rem(post.id, 5) * 0.3}s"}
           phx-click={JS.dispatch("play-audio", detail: %{url: post.url})}
         >
-          <div class="bubble w-full h-full overflow-hidden">
-            <img src={post.url} alt="voice" class="bubble-img w-full h-full" />
+          <div class={"#{float_class(post.id)} w-full h-full"}>
+            <div class="bubble w-full h-full overflow-hidden">
+              <img src={post.url} alt="voice" class="bubble-img w-full h-full" />
+            </div>
           </div>
         </button>
-
-        <div :if={@post_count == 0} class="text-center py-16 w-full">
-          <div class="text-4xl mb-3 opacity-25">🫧</div>
-          <p class="text-purple-400/20 text-sm font-light">blow a bubble</p>
-        </div>
       </div>
 
       <%!-- Mic + preview bubble (fixed bottom) --%>

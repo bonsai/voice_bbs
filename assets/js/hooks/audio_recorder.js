@@ -78,6 +78,9 @@ export const AudioRecorder = {
   },
 
   async startRecording() {
+    if (this.mediaRecorder && this.mediaRecorder.state === 'recording') return
+    clearInterval(this.timerInterval)
+    this.timerInterval = null
     try {
       this.stream = await navigator.mediaDevices.getUserMedia({ audio: true })
       const mimeType = MediaRecorder.isTypeSupported('audio/webm;codecs=opus')
@@ -130,6 +133,7 @@ export const AudioRecorder = {
       this.preview.classList.add('visible')
 
       const updateBubble = () => {
+        if (!this.mediaRecorder || this.mediaRecorder.state !== 'recording') return
         const elapsed = Math.min((Date.now() - this.startTime) / 1000, MAX_DURATION)
         const size = bubbleSizePx(elapsed)
         this.preview.style.width = size + 'px'
