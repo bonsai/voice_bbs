@@ -10,6 +10,10 @@ import Config
 config :voice_bbs,
   generators: [timestamp_type: :utc_datetime]
 
+config :voice_bbs, VoiceBbs.Repo,
+  migration_primary_key: [type: :binary_id],
+  migration_timestamps: [type: :utc_datetime]
+
 # Configures the endpoint
 config :voice_bbs, VoiceBbsWeb.Endpoint,
   url: [host: "localhost"],

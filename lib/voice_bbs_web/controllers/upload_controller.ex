@@ -1,12 +1,35 @@
 defmodule VoiceBbsWeb.UploadController do
   use VoiceBbsWeb, :controller
 
-  def create(conn, %{"image_base64" => b64, "duration" => duration}) do
+  def create(conn, %{"image_base64" => b64, "duration" => duration, "device_id" => device_id}) do
     png_data = Base.decode64!(b64)
     dur = parse_duration(duration)
-    post = VoiceBbs.Posts.add_post(png_data, dur)
 
-    json(conn, %{ok: true, id: post.id, url: post.url, duration: post.duration})
+    case VoiceBbs.Posts.add_post(device_id, png_data, dur) do
+      {:ok, post} ->
+        remaining = VoiceBbs.Posts.max_per_device() - VoiceBbs.Posts.count_by_device(device_id)
+
+        json(conn, %{
+          ok: true,
+          id: post.id,
+          url: post.url,
+          duration: post.duration,
+          remaining: remaining
+        })
+
+      {:error, :limit_reached} ->
+        json(conn, %{ok: false, error: "limit_reached", message: "Maximum 4 posts per device"})
+    end
+  end
+
+  def create(conn, _params) do
+    json(conn, %{ok: false, error: "missing_params"})
+  end
+
+  def count(conn, %{"device_id" => device_id}) do
+    count = VoiceBbs.Posts.count_by_device(device_id)
+
+    json(conn, %{ok: true, count: count, remaining: VoiceBbs.Posts.max_per_device() - count})
   end
 
   defp parse_duration(d) when is_number(d), do: max(d, 0.1)

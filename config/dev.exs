@@ -1,5 +1,13 @@
 import Config
 
+config :voice_bbs, VoiceBbs.Repo,
+  database: "voice_bbs_dev",
+  username: "postgres",
+  password: "postgres",
+  hostname: "localhost",
+  show_sensitive_data_on_connection_error: true,
+  stacktrace: true
+
 # For development, we disable any cache and enable
 # debugging and code reloading.
 #

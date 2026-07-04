@@ -5,7 +5,7 @@ defmodule VoiceBbs.MixProject do
     [
       app: :voice_bbs,
       version: "0.1.0",
-      elixir: "~> 1.14",
+      elixir: "~> 1.17",
       elixirc_paths: elixirc_paths(Mix.env()),
       start_permanent: Mix.env() == :prod,
       aliases: aliases(),
@@ -52,7 +52,9 @@ defmodule VoiceBbs.MixProject do
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
       {:bandit, "~> 1.5.0"},
-      {:plug, "~> 1.15.0", override: true}
+      {:plug, "~> 1.15.0", override: true},
+      {:ecto_sql, "~> 3.11"},
+      {:postgrex, "~> 0.18.0"}
     ]
   end
 
@@ -71,7 +73,9 @@ defmodule VoiceBbs.MixProject do
         "tailwind voice_bbs --minify",
         "esbuild voice_bbs --minify",
         "phx.digest"
-      ]
+      ],
+      "ecto.setup": ["ecto.create", "ecto.migrate"],
+      deploy: ["assets.deploy", "ecto.migrate"]
     ]
   end
 end

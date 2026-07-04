@@ -32,7 +32,8 @@ defmodule VoiceBbsWeb.BoardLive do
   end
 
   defp float_class(id) do
-    case rem(id, 4) do
+    num = :erlang.phash2(id)
+    case rem(num, 4) do
       0 -> "bubble-float"
       1 -> "bubble-float-reverse"
       2 -> "bubble-float-slow"
@@ -93,7 +94,7 @@ defmodule VoiceBbsWeb.BoardLive do
           :for={{id, post} <- @streams.posts}
           id={id}
           class="bubble-pop-in bubble-wrapper cursor-pointer"
-          style={"width:#{bubble_size(post.duration)}px;height:#{bubble_size(post.duration)}px;animation-delay:#{rem(post.id, 5) * 0.3}s"}
+          style={"width:#{bubble_size(post.duration)}px;height:#{bubble_size(post.duration)}px;animation-delay:#{rem(:erlang.phash2(post.id), 5) * 0.3}s"}
           phx-click={JS.dispatch("play-audio", detail: %{url: post.url})}
         >
           <div class={"#{float_class(post.id)} w-full h-full"}>
@@ -116,6 +117,13 @@ defmodule VoiceBbsWeb.BoardLive do
         <div class="pointer-events-auto flex flex-col items-center gap-1">
           <div id="timer" class="text-purple-400/40 text-[10px] font-mono hidden">
             0:00 / 0:30
+          </div>
+
+          <div id="slots" class="flex items-center justify-center gap-1.5 mb-1">
+            <div class="slot-dot"></div>
+            <div class="slot-dot"></div>
+            <div class="slot-dot"></div>
+            <div class="slot-dot"></div>
           </div>
 
           <button id="record-btn" class="mic-btn">

@@ -11,6 +11,7 @@ defmodule VoiceBbs.Application do
       VoiceBbsWeb.Telemetry,
       {DNSCluster, query: Application.get_env(:voice_bbs, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: VoiceBbs.PubSub},
+      VoiceBbs.Repo,
       VoiceBbs.Posts,
       VoiceBbsWeb.Endpoint
     ]

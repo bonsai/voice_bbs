@@ -56,14 +56,23 @@ export const AudioRecorder = {
     this.analyser = null
     this.dataArray = null
     this.animFrameId = null
+    this.deviceId = this.getDeviceId()
 
     this.btn = this.el.querySelector('#record-btn')
     this.timer = this.el.querySelector('#timer')
     this.preview = this.el.querySelector('#preview-bubble')
     this.canvas = this.el.querySelector('#waveform-canvas')
+    this.slots = this.el.querySelector('#slots')
+
+    this.fetchInitialCount()
 
     const onDown = (e) => {
       e.preventDefault()
+      if (this.slots.querySelectorAll('.used').length >= 4) {
+        this.btn.classList.add('recording')
+        setTimeout(() => this.btn.classList.remove('recording'), 600)
+        return
+      }
       this.startRecording()
     }
     const onUp = (e) => {
@@ -80,6 +89,31 @@ export const AudioRecorder = {
     })
     this.btn.addEventListener('touchstart', onDown)
     this.btn.addEventListener('touchend', onUp)
+  },
+
+  getDeviceId() {
+    let id = localStorage.getItem('voice_bbs_device_id')
+    if (!id) {
+      id = crypto.randomUUID()
+      localStorage.setItem('voice_bbs_device_id', id)
+    }
+    return id
+  },
+
+  async fetchInitialCount() {
+    try {
+      const res = await fetch(`/api/count/${this.deviceId}`)
+      const data = await res.json()
+      if (data.ok) this.updateSlots(data.count)
+    } catch (_) {}
+  },
+
+  updateSlots(count) {
+    const dots = this.slots.querySelectorAll('.slot-dot')
+    dots.forEach((dot, i) => {
+      dot.className = 'slot-dot'
+      if (i < count) dot.classList.add('used')
+    })
   },
 
   async startRecording() {
@@ -120,14 +154,18 @@ export const AudioRecorder = {
         const base64 = await encodeBytesAsPNG(bytes)
 
         const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute('content')
-        await fetch('/api/upload', {
+        const res = await fetch('/api/upload', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'x-csrf-token': csrfToken,
           },
-          body: JSON.stringify({ image_base64: base64, duration: duration }),
+          body: JSON.stringify({ image_base64: base64, duration: duration, device_id: this.deviceId }),
         })
+        const data = await res.json()
+        if (data.ok && typeof data.remaining === 'number') {
+          this.updateSlots(4 - data.remaining)
+        }
       }
 
       this.mediaRecorder.start()

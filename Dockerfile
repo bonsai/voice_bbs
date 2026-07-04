@@ -25,4 +25,4 @@ ENV PORT=4000
 
 EXPOSE 4000
 
-CMD ["mix", "phx.server"]
+CMD ["sh", "-c", "mix ecto.migrate && mix phx.server"]

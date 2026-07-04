@@ -30,5 +30,6 @@ defmodule VoiceBbsWeb.Router do
     pipe_through :api
 
     post "/upload", UploadController, :create
+    get "/count/:device_id", UploadController, :count
   end
 end

@@ -3,18 +3,25 @@ defmodule VoiceBbs.Posts do
 
   @pubsub VoiceBbs.PubSub
   @topic "board"
+  @max_per_device 4
 
   def start_link(_) do
-    GenServer.start_link(__MODULE__, %{posts: [], counter: 0}, name: __MODULE__)
+    GenServer.start_link(__MODULE__, %{}, name: __MODULE__)
   end
 
-  def add_post(png_data, duration_sec) do
-    GenServer.call(__MODULE__, {:add_post, png_data, duration_sec})
+  def add_post(device_id, png_data, duration_sec) do
+    GenServer.call(__MODULE__, {:add_post, device_id, png_data, duration_sec})
   end
 
   def list_posts do
     GenServer.call(__MODULE__, :list_posts)
   end
+
+  def count_by_device(device_id) do
+    GenServer.call(__MODULE__, {:count_by_device, device_id})
+  end
+
+  def max_per_device, do: @max_per_device
 
   @impl true
   def init(state) do
@@ -23,30 +30,54 @@ defmodule VoiceBbs.Posts do
     {:ok, state}
   end
 
+  import Ecto.Query, only: [where: 2, order_by: 2]
+
   @impl true
-  def handle_call({:add_post, png_data, duration_sec}, _from, state) do
-    id = state.counter + 1
-    filename = "#{id}.png"
-    path = Path.join(uploads_dir(), filename)
-    File.write!(path, png_data)
+  def handle_call({:add_post, device_id, png_data, duration_sec}, _from, state) do
+    count = VoiceBbs.Repo.aggregate(
+      where(VoiceBbs.Post, device_id: ^device_id),
+      :count,
+      :id
+    )
 
-    dur = round(duration_sec * 10) / 10
+    if count >= @max_per_device do
+      {:reply, {:error, :limit_reached}, state}
+    else
+      id = Ecto.UUID.generate()
+      filename = "#{id}.png"
+      path = Path.join(uploads_dir(), filename)
+      File.write!(path, png_data)
 
-    post = %{
-      id: id,
-      url: "/uploads/#{filename}",
-      duration: dur,
-      timestamp: DateTime.utc_now() |> DateTime.to_iso8601()
-    }
+      dur = round(duration_sec * 10) / 10
 
-    Phoenix.PubSub.broadcast(@pubsub, @topic, {:new_post, post})
+      {:ok, post_schema} = VoiceBbs.Repo.insert(%VoiceBbs.Post{
+        id: id,
+        device_id: device_id,
+        url: "/uploads/#{filename}",
+        duration: dur,
+        filename: filename
+      })
 
-    {:reply, post, %{posts: [post | state.posts], counter: id}}
+      Phoenix.PubSub.broadcast(@pubsub, @topic, {:new_post, post_schema})
+
+      {:reply, {:ok, post_schema}, state}
+    end
   end
 
   @impl true
   def handle_call(:list_posts, _from, state) do
-    {:reply, state.posts, state}
+    posts = VoiceBbs.Repo.all(order_by(VoiceBbs.Post, desc: :inserted_at))
+    {:reply, posts, state}
+  end
+
+  @impl true
+  def handle_call({:count_by_device, device_id}, _from, state) do
+    count = VoiceBbs.Repo.aggregate(
+      where(VoiceBbs.Post, device_id: ^device_id),
+      :count,
+      :id
+    )
+    {:reply, count, state}
   end
 
   defp uploads_dir do
