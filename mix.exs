@@ -52,7 +52,7 @@ defmodule VoiceBbs.MixProject do
       {:telemetry_poller, "~> 1.0"},
       {:jason, "~> 1.2"},
       {:dns_cluster, "~> 0.1.1"},
-      {:bandit, "~> 1.5.0"},
+      {:bandit, "~> 1.12"},
       {:plug, "~> 1.15.0", override: true},
       {:ecto_sql, "~> 3.11"},
       {:postgrex, "~> 0.18.0"}
