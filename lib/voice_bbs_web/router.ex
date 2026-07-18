@@ -24,15 +24,10 @@ defmodule VoiceBbsWeb.Router do
     live "/api-list", ApiLive
   end
 
-  scope "/", VoiceBbsWeb do
-    pipe_through :api
-
-    get "/healthz", HealthController, :index
-  end
-
   scope "/api", VoiceBbsWeb do
     pipe_through :api
 
+    get "/healthz", HealthController, :index
     get "/posts", UploadController, :index
     get "/tree", UploadController, :tree
     post "/upload", UploadController, :create

@@ -1,0 +1,327 @@
+openapi: 3.0.3
+info:
+  title: bubble-voice API
+  description: |
+    音声掲示板 bubble-voice の REST API。
+    音声は PNG 画素にエンコードして保存される（ADR-002）。
+  version: 1.0.0
+  contact:
+    name: onsen.bonsai
+
+servers:
+  - url: https://bubblevoice-941146906074.asia-northeast1.run.app
+    description: Cloud Run (asia-northeast1)
+  - url: http://localhost:4000
+    description: Local dev
+
+paths:
+  /api/healthz:
+    get:
+      operationId: healthCheck
+      summary: ヘルスチェック
+      tags: [System]
+      responses:
+        '200':
+          description: OK
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  status:
+                    type: string
+
+  /api/posts:
+    get:
+      operationId: listPosts
+      summary: 全投稿一覧
+      tags: [Posts]
+      parameters:
+        - name: source
+          in: query
+          schema:
+            type: string
+            enum: [board, yon, test]
+      responses:
+        '200':
+          description: 投稿一覧
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  posts:
+                    type: array
+                    items:
+                      $ref: '#/components/schemas/Post'
+
+  /api/posts/{id}:
+    delete:
+      operationId: deletePost
+      summary: 投稿削除
+      tags: [Posts]
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: string
+            format: uuid
+      responses:
+        '200':
+          description: 削除成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+
+  /api/upload:
+    post:
+      operationId: uploadPost
+      summary: 音声投稿（PNG画像として保存）
+      tags: [Posts]
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [image_base64, duration, device_id]
+              properties:
+                image_base64:
+                  type: string
+                  description: PNG エンコードされた音声データ（Base64）
+                duration:
+                  type: number
+                  format: float
+                  description: 音声長（秒）
+                  example: 3.5
+                device_id:
+                  type: string
+                  description: デバイス識別子（4投稿/デバイス制限）
+                source:
+                  type: string
+                  enum: [board, yon, test]
+                  default: board
+      responses:
+        '200':
+          description: 投稿成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  id:
+                    type: string
+                    format: uuid
+                  url:
+                    type: string
+                    description: PNG ファイルの URL
+                  duration:
+                    type: number
+                  remaining:
+                    type: integer
+                    description: 残り投稿数（デバイスあたり最大4件）
+        '200':
+          description: 制限到達
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                    example: false
+                  error:
+                    type: string
+                    example: limit_reached
+                  message:
+                    type: string
+
+  /api/count/{device_id}:
+    get:
+      operationId: countByDevice
+      summary: デバイス別投稿数
+      tags: [Posts]
+      parameters:
+        - name: device_id
+          in: path
+          required: true
+          schema:
+            type: string
+      responses:
+        '200':
+          description: 投稿数
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  count:
+                    type: integer
+                  remaining:
+                    type: integer
+
+  /api/tree:
+    get:
+      operationId: getTree
+      summary: ツリー構造（ルーム + ソース別）
+      tags: [Posts]
+      responses:
+        '200':
+          description: ツリー構造
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  rooms:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        room_id:
+                          type: string
+                          format: uuid
+                        count:
+                          type: integer
+                        posts:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Post'
+                  sources:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        source:
+                          type: string
+                        count:
+                          type: integer
+                        posts:
+                          type: array
+                          items:
+                            $ref: '#/components/schemas/Post'
+
+  /api/create-room:
+    post:
+      operationId: createRoom
+      summary: ルーム作成 + ダミー投稿
+      tags: [Rooms]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                  enum: [board, yon, test]
+                  default: board
+                device_id:
+                  type: string
+      responses:
+        '200':
+          description: ルーム作成成功
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  id:
+                    type: string
+                    format: uuid
+                  url:
+                    type: string
+                  source:
+                    type: string
+                  room_id:
+                    type: string
+                    format: uuid
+
+  /api/new:
+    post:
+      operationId: createRoomAlias
+      summary: create-room のエイリアス
+      tags: [Rooms]
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                source:
+                  type: string
+                device_id:
+                  type: string
+      responses:
+        '200':
+          description: ルーム作成成功
+
+  /api/migrate:
+    post:
+      operationId: migrate
+      summary: DBマイグレーション実行
+      tags: [System]
+      responses:
+        '200':
+          description: マイグレーション完了
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  ok:
+                    type: boolean
+                  message:
+                    type: string
+
+components:
+  schemas:
+    Post:
+      type: object
+      properties:
+        id:
+          type: string
+          format: uuid
+        url:
+          type: string
+          description: PNG ファイルの URL
+        duration:
+          type: number
+          format: float
+        device_id:
+          type: string
+        source:
+          type: string
+          enum: [board, yon, test]
+        room_id:
+          type: string
+          format: uuid
+          nullable: true
+        inserted_at:
+          type: string
+          format: date-time
+
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+security: []

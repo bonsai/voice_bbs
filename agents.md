@@ -22,7 +22,7 @@
 | POST | /api/new | Create room (returns room_id) |
 | POST | /api/migrate | Run DB migrations |
 | DELETE | /api/posts/:id | Delete post (DB + file) |
-| GET | /healthz | Health check |
+| GET | /api/healthz | Health check |
 
 ## Pages
 | Path | Type | Feature |
