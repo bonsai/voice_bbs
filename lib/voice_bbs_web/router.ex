@@ -14,6 +14,11 @@ defmodule VoiceBbsWeb.Router do
     plug :accepts, ["json"]
   end
 
+  pipeline :api_auth do
+    plug :accepts, ["json"]
+    plug VoiceBbsWeb.Plugs.Auth
+  end
+
   scope "/", VoiceBbsWeb do
     pipe_through :browser
 
@@ -29,12 +34,18 @@ defmodule VoiceBbsWeb.Router do
     get "/healthz", HealthController, :index
     get "/posts", UploadController, :index
     get "/tree", UploadController, :tree
+    get "/count/:device_id", UploadController, :count
+    get "/rooms", UploadController, :rooms
+    get "/tts", TtsController, :index
+  end
+
+  scope "/api", VoiceBbsWeb do
+    pipe_through :api_auth
+
     post "/upload", UploadController, :create
     post "/migrate", UploadController, :migrate
     post "/create-room", UploadController, :new
     post "/new", UploadController, :new
     delete "/posts/:id", UploadController, :delete
-    get "/count/:device_id", UploadController, :count
-    get "/rooms", UploadController, :rooms
   end
 end

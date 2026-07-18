@@ -70,23 +70,50 @@
 .bubble {
   border-radius: 50%;
   position: relative;
+  background: linear-gradient(135deg, rgba(168,85,247,0.08), rgba(236,72,153,0.06), rgba(59,130,246,0.08));
   box-shadow:
-    0 0 0 2px rgba(168, 85, 247, 0.12),
-    0 4px 24px rgba(168, 85, 247, 0.15),
-    inset 0 -3px 8px rgba(234, 179, 8, 0.1),
-    inset 0 3px 8px rgba(250, 250, 250, 0.3);
+    0 0 0 2px rgba(168, 85, 247, 0.15),
+    0 4px 24px rgba(168, 85, 247, 0.18),
+    0 8px 32px rgba(236, 72, 153, 0.1),
+    inset 0 -3px 8px rgba(234, 179, 8, 0.12),
+    inset 0 3px 8px rgba(250, 250, 250, 0.35);
+  border: 1.5px solid rgba(168, 85, 247, 0.12);
 }
 
 .bubble::after {
   content: "";
   position: absolute;
-  top: 12%;
-  left: 18%;
-  width: 30%;
-  height: 22%;
-  background: radial-gradient(ellipse, rgba(255,255,255,0.6), transparent 70%);
+  top: 10%;
+  left: 15%;
+  width: 35%;
+  height: 25%;
+  background: radial-gradient(ellipse, rgba(255,255,255,0.7), transparent 70%);
   border-radius: 50%;
   pointer-events: none;
+}
+
+/* Rainbow shimmer */
+.bubble::before {
+  content: "";
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background: conic-gradient(
+    from 0deg,
+    rgba(239,68,68,0.06),
+    rgba(245,158,11,0.06),
+    rgba(34,197,94,0.06),
+    rgba(59,130,246,0.06),
+    rgba(168,85,247,0.06),
+    rgba(236,72,153,0.06),
+    rgba(239,68,68,0.06)
+  );
+  animation: rainbow-spin 8s linear infinite;
+  pointer-events: none;
+}
+
+@keyframes rainbow-spin {
+  to { transform: rotate(360deg); }
 }
 
 .bubble-wrapper:hover .bubble {
