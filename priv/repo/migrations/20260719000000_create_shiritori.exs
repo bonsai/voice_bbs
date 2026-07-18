@@ -9,12 +9,11 @@ defmodule VoiceBbs.Repo.Migrations.CreateShiritori do
       add :audio_url, :string
       add :device_id, :string, null: false
       add :position, :integer, null: false, default: 0
-      add :prev_id, references(:shiritori, type: :binary_id, on_delete: :nilify)
+      add :prev_id, :string
 
       timestamps()
     end
 
-    create index(:shiritori, [:prev_id])
     create index(:shiritori, [:position])
   end
 end

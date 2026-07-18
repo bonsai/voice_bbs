@@ -8,7 +8,7 @@ defmodule VoiceBbs.Shiritori do
     field :audio_url, :string
     field :device_id, :string
     field :position, :integer, default: 0
-    field :prev_id, :binary_id
+    field :prev_id, :string
 
     timestamps()
   end
