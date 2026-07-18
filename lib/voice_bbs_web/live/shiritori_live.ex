@@ -7,6 +7,8 @@ defmodule VoiceBbsWeb.ShiritoriLive do
       Phoenix.PubSub.subscribe(VoiceBbs.PubSub, "shiritori")
     end
 
+    ensure_table()
+
     chain = VoiceBbs.Shiritoris.list_chain()
     last = VoiceBbs.Shiritoris.last_word()
 
@@ -95,6 +97,12 @@ defmodule VoiceBbsWeb.ShiritoriLive do
 
   defp expected_kana(nil), do: "あ"
   defp expected_kana(last), do: VoiceBbs.Shiritoris.last_kana(last.kana)
+
+  defp ensure_table do
+    Ecto.Migrator.run(VoiceBbs.Repo, :up, all: true)
+  rescue
+    _ -> :ok
+  end
 
   defp generate_device_id do
     "shiritori-" <> Base.encode16(:crypto.strong_rand_bytes(4), case: :lower)
