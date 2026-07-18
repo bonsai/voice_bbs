@@ -1,0 +1,64 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: voice-bbs
+  labels:
+    app: voice-bbs
+spec:
+  replicas: 2
+  strategy:
+    type: RollingUpdate
+    rollingUpdate:
+      maxSurge: 1
+      maxUnavailable: 0
+  selector:
+    matchLabels:
+      app: voice-bbs
+  template:
+    metadata:
+      labels:
+        app: voice-bbs
+    spec:
+      containers:
+        - name: voice-bbs
+          image: ghcr.io/bonsai/voice-bbs:latest
+          ports:
+            - containerPort: 4000
+              name: http
+          envFrom:
+            - configMapRef:
+                name: voice-bbs-config
+          env:
+            - name: PHX_SECRET_KEY_BASE
+              valueFrom:
+                secretKeyRef:
+                  name: voice-bbs-secret
+                  key: secret-key-base
+          resources:
+            requests:
+              memory: "256Mi"
+              cpu: "250m"
+            limits:
+              memory: "512Mi"
+              cpu: "500m"
+          volumeMounts:
+            - name: uploads
+              mountPath: /data/uploads
+          livenessProbe:
+            httpGet:
+              path: /healthz
+              port: 4000
+            initialDelaySeconds: 30
+            periodSeconds: 10
+          readinessProbe:
+            httpGet:
+              path: /healthz
+              port: 4000
+            initialDelaySeconds: 5
+            periodSeconds: 5
+      volumes:
+        - name: uploads
+          persistentVolumeClaim:
+            claimName: voice-bbs-uploads
+      imagePullSecrets:
+        - name: ghcr-secret

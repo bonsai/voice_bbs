@@ -1,0 +1,10 @@
+apiVersion: v1
+kind: ConfigMap
+metadata:
+  name: voice-bbs-config
+data:
+  PHX_SERVER: "true"
+  PORT: "4000"
+  UPLOADS_DIR: "/data/uploads"
+  RELEASE_DISTRIBUTION: "none"
+  LANG: "C.UTF-8"

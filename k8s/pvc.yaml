@@ -1,0 +1,13 @@
+apiVersion: v1
+kind: PersistentVolumeClaim
+metadata:
+  name: voice-bbs-uploads
+spec:
+  accessModes:
+    - ReadWriteOnce
+  resources:
+    requests:
+      storage: 1Gi
+  storageClassName: standard
+  # NOTE: For multi-node clusters, use ReadWriteMany + NFS/EFS
+  #       or migrate uploads to S3-compatible storage
