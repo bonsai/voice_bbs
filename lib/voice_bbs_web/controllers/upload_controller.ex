@@ -2,24 +2,29 @@ defmodule VoiceBbsWeb.UploadController do
   use VoiceBbsWeb, :controller
 
   def create(conn, %{"image_base64" => b64, "duration" => duration, "device_id" => device_id} = params) do
-    png_data = Base.decode64!(b64)
-    dur = parse_duration(duration)
-    source = Map.get(params, "source", "board")
+    case Base.decode64(b64) do
+      {:ok, png_data} ->
+        dur = parse_duration(duration)
+        source = Map.get(params, "source", "board")
 
-    case VoiceBbs.Posts.add_post(device_id, png_data, dur, source) do
-      {:ok, post} ->
-        remaining = VoiceBbs.Posts.max_per_device() - VoiceBbs.Posts.count_by_device(device_id)
+        case VoiceBbs.Posts.add_post(device_id, png_data, dur, source) do
+          {:ok, post} ->
+            remaining = VoiceBbs.Posts.max_per_device() - VoiceBbs.Posts.count_by_device(device_id)
 
-        json(conn, %{
-          ok: true,
-          id: post.id,
-          url: post.url,
-          duration: post.duration,
-          remaining: remaining
-        })
+            json(conn, %{
+              ok: true,
+              id: post.id,
+              url: post.url,
+              duration: post.duration,
+              remaining: remaining
+            })
 
-      {:error, :limit_reached} ->
-        json(conn, %{ok: false, error: "limit_reached", message: "Maximum 4 posts per device"})
+          {:error, :limit_reached} ->
+            json(conn, %{ok: false, error: "limit_reached", message: "Maximum 4 posts per device"})
+        end
+
+      :error ->
+        json(conn, %{ok: false, error: "invalid_base64"})
     end
   end
 
