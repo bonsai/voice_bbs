@@ -119,7 +119,7 @@ defmodule VoiceBbs.Posts do
     bucket = gcs_bucket()
     url = "https://storage.googleapis.com/upload/storage/v1/b/#{bucket}/o?uploadType=media&name=#{filename}"
 
-    {:ok, token} = Goth.Token.for_scope(VoiceBbs.Goth, "https://www.googleapis.com/auth/cloud-platform")
+    {:ok, token} = Goth.Token.for_scope("https://www.googleapis.com/auth/cloud-platform")
 
     {:ok, resp} =
       Req.post(url,
@@ -137,7 +137,7 @@ defmodule VoiceBbs.Posts do
     bucket = gcs_bucket()
     url = "https://storage.googleapis.com/storage/v1/b/#{bucket}/o/#{filename}"
 
-    {:ok, token} = Goth.Token.for_scope(VoiceBbs.Goth, "https://www.googleapis.com/auth/cloud-platform")
+    {:ok, token} = Goth.Token.for_scope("https://www.googleapis.com/auth/cloud-platform")
     Req.delete(url, headers: [{"authorization", "Bearer #{token.token}"}])
     :ok
   end
