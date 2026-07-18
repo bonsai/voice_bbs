@@ -44,6 +44,10 @@ async function decodePNGToAudio(url) {
 
   const dataLength = lenView.getUint32(0, false)
 
+  if (dataLength === 0 || dataLength > pixels.length * 3) {
+    throw new Error("Invalid audio data length in PNG")
+  }
+
   const audioBytes = new Uint8Array(dataLength)
   for (let i = 0; i < dataLength; i++) {
     const byteIdx = i + 4
@@ -56,19 +60,33 @@ async function decodePNGToAudio(url) {
 }
 
 window.addEventListener("play-audio", async (e) => {
-  const url = e.detail.url
-  const blob = await decodePNGToAudio(url)
-  const audioUrl = URL.createObjectURL(blob)
-  const audio = new Audio(audioUrl)
+  try {
+    const url = e.detail.url
+    const blob = await decodePNGToAudio(url)
+    if (blob.size < 100) {
+      console.warn("Audio blob too small, likely not real audio")
+      return
+    }
+    const audioUrl = URL.createObjectURL(blob)
+    const audio = new Audio(audioUrl)
 
-  const btn = e.target?.closest?.('.bubble-wrapper')
-  if (btn) btn.classList.add('playing')
+    const btn = e.target?.closest?.('.bubble-wrapper')
+    if (btn) btn.classList.add('playing')
 
-  audio.addEventListener('ended', () => {
-    if (btn) btn.classList.remove('playing')
-  })
+    audio.addEventListener('ended', () => {
+      if (btn) btn.classList.remove('playing')
+      URL.revokeObjectURL(audioUrl)
+    })
 
-  audio.play()
+    audio.addEventListener('error', () => {
+      if (btn) btn.classList.remove('playing')
+      URL.revokeObjectURL(audioUrl)
+    })
+
+    await audio.play()
+  } catch (err) {
+    console.error("Playback failed:", err)
+  }
 })
 
 window.addEventListener("speak-tts", (e) => {
@@ -83,11 +101,18 @@ window.addEventListener("speak-tts", (e) => {
 })
 
 window.addEventListener("play-admin-audio", async (e) => {
-  const url = e.detail.url
-  const blob = await decodePNGToAudio(url)
-  const audioUrl = URL.createObjectURL(blob)
-  const audio = new Audio(audioUrl)
-  audio.play()
+  try {
+    const url = e.detail.url
+    const blob = await decodePNGToAudio(url)
+    if (blob.size < 100) return
+    const audioUrl = URL.createObjectURL(blob)
+    const audio = new Audio(audioUrl)
+    audio.addEventListener('ended', () => URL.revokeObjectURL(audioUrl))
+    audio.addEventListener('error', () => URL.revokeObjectURL(audioUrl))
+    await audio.play()
+  } catch (err) {
+    console.error("Admin playback failed:", err)
+  }
 })
 
 window.addEventListener("speak-onboard", (e) => {
@@ -124,14 +149,20 @@ window.addEventListener("test-mic", async () => {
 })
 
 window.addEventListener("play-sequence", async (e) => {
-  const urls = e.detail.urls
-  for (const url of urls) {
-    const blob = await decodePNGToAudio(url)
-    const audioUrl = URL.createObjectURL(blob)
-    const audio = new Audio(audioUrl)
-    await new Promise(resolve => {
-      audio.addEventListener('ended', resolve)
-      audio.play()
-    })
+  try {
+    const urls = e.detail.urls
+    for (const url of urls) {
+      const blob = await decodePNGToAudio(url)
+      if (blob.size < 100) continue
+      const audioUrl = URL.createObjectURL(blob)
+      const audio = new Audio(audioUrl)
+      await new Promise((resolve, reject) => {
+        audio.addEventListener('ended', () => { URL.revokeObjectURL(audioUrl); resolve() })
+        audio.addEventListener('error', () => { URL.revokeObjectURL(audioUrl); resolve() })
+        audio.play().catch(resolve)
+      })
+    }
+  } catch (err) {
+    console.error("Sequence playback failed:", err)
   }
 })
