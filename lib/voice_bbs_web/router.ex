@@ -17,8 +17,7 @@ defmodule VoiceBbsWeb.Router do
   scope "/", VoiceBbsWeb do
     pipe_through :browser
 
-    live "/", BoardLive
-    live "/yon", YonLive
+    live "/", LandingLive
     live "/manage", ManageLive
     live "/room/:id", RoomLive
     live "/shiritori", ShiritoriLive
