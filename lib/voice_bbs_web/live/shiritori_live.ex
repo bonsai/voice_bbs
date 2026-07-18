@@ -113,10 +113,13 @@ defmodule VoiceBbsWeb.ShiritoriLive do
   defp error_msg({"mismatch", expected, got}), do: "「#{expected}」で始まる言葉を言って！（拾った: 「#{got}」）"
   defp error_msg(reason), do: "エラー: #{inspect(reason)}"
 
+  defp main_class(nil), do: "min-h-screen bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 flex flex-col"
+  defp main_class(_), do: "min-h-screen bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 flex flex-col grayscale-[0.6] opacity-80 transition-all duration-300"
+
   @impl true
   def render(assigns) do
     ~H"""
-    <div class="min-h-screen bg-gradient-to-b from-pink-50 via-purple-50 to-blue-50 flex flex-col">
+    <div class={main_class(@error_msg)}>
 
       <%!-- Header --%>
       <div class="text-center pt-6 pb-2 px-4">
