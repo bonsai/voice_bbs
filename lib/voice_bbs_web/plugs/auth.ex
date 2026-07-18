@@ -16,17 +16,8 @@ defmodule VoiceBbsWeb.Plugs.Auth do
         end
 
       _ ->
-        case conn.params do
-          %{"token" => token} ->
-            if token == @token do
-              conn
-            else
-              conn |> put_status(:unauthorized) |> json(%{error: "invalid token"}) |> halt()
-            end
-
-          _ ->
-            conn |> put_status(:unauthorized) |> json(%{error: "missing authorization"}) |> halt()
-        end
+        # Allow without auth (public mode)
+        conn
     end
   end
 end
