@@ -33,8 +33,10 @@ defmodule VoiceBbs.Posts do
 
   @impl true
   def init(state) do
-    uploads_dir = uploads_dir()
-    File.mkdir_p!(uploads_dir)
+    unless gcs_bucket() do
+      uploads_dir = uploads_dir()
+      File.mkdir_p!(uploads_dir)
+    end
     {:ok, state}
   end
 
@@ -53,15 +55,22 @@ defmodule VoiceBbs.Posts do
     else
       id = Ecto.UUID.generate()
       filename = "#{id}.png"
-      path = Path.join(uploads_dir(), filename)
-      File.write!(path, png_data)
+
+      url =
+        if gcs_bucket() do
+          upload_to_gcs(filename, png_data)
+        else
+          path = Path.join(uploads_dir(), filename)
+          File.write!(path, png_data)
+          "/uploads/#{filename}"
+        end
 
       dur = round(duration_sec * 10) / 10
 
       {:ok, post_schema} = VoiceBbs.Repo.insert(%VoiceBbs.Post{
         id: id,
         device_id: device_id,
-        url: "/uploads/#{filename}",
+        url: url,
         duration: dur,
         filename: filename,
         source: source,
@@ -83,8 +92,14 @@ defmodule VoiceBbs.Posts do
   @impl true
   def handle_call({:delete_post, id}, _from, state) do
     post = VoiceBbs.Repo.get!(VoiceBbs.Post, id)
-    path = Path.join(uploads_dir(), post.filename)
-    File.rm(path)
+
+    if gcs_bucket() do
+      delete_from_gcs(post.filename)
+    else
+      path = Path.join(uploads_dir(), post.filename)
+      File.rm(path)
+    end
+
     VoiceBbs.Repo.delete!(post)
     Phoenix.PubSub.broadcast(@pubsub, @topic, {:delete_post, id})
     {:reply, :ok, state}
@@ -98,6 +113,37 @@ defmodule VoiceBbs.Posts do
       :id
     )
     {:reply, count, state}
+  end
+
+  defp upload_to_gcs(filename, png_data) do
+    bucket = gcs_bucket()
+    url = "https://storage.googleapis.com/upload/storage/v1/b/#{bucket}/o?uploadType=media&name=#{filename}"
+
+    {:ok, token} = Goth.Token.for_scope(VoiceBbs.Goth, "https://www.googleapis.com/auth/cloud-platform")
+
+    {:ok, resp} =
+      Req.post(url,
+        body: png_data,
+        headers: [
+          {"authorization", "Bearer #{token.token}"},
+          {"content-type", "image/png"}
+        ]
+      )
+
+    "https://storage.googleapis.com/#{bucket}/#{filename}"
+  end
+
+  defp delete_from_gcs(filename) do
+    bucket = gcs_bucket()
+    url = "https://storage.googleapis.com/storage/v1/b/#{bucket}/o/#{filename}"
+
+    {:ok, token} = Goth.Token.for_scope(VoiceBbs.Goth, "https://www.googleapis.com/auth/cloud-platform")
+    Req.delete(url, headers: [{"authorization", "Bearer #{token.token}"}])
+    :ok
+  end
+
+  defp gcs_bucket do
+    System.get_env("GCS_BUCKET")
   end
 
   defp uploads_dir do

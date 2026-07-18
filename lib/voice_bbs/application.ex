@@ -12,6 +12,7 @@ defmodule VoiceBbs.Application do
       {DNSCluster, query: Application.get_env(:voice_bbs, :dns_cluster_query) || :ignore},
       {Phoenix.PubSub, name: VoiceBbs.PubSub},
       VoiceBbs.Repo,
+      {Goth, name: VoiceBbs.Goth},
       VoiceBbs.Posts,
       VoiceBbsWeb.Endpoint
     ]

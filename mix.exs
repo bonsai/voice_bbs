@@ -55,7 +55,9 @@ defmodule VoiceBbs.MixProject do
       {:bandit, "~> 1.12"},
       {:plug, "~> 1.15.0", override: true},
       {:ecto_sql, "~> 3.11"},
-      {:postgrex, "~> 0.18.0"}
+      {:postgrex, "~> 0.18.0"},
+      {:goth, "~> 1.4"},
+      {:req, "~> 0.5"}
     ]
   end
 
