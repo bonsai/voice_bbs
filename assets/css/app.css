@@ -315,3 +315,30 @@
     padding-bottom: env(safe-area-inset-bottom);
   }
 }
+
+/* ── Disconnected overlay ── */
+
+.phx-disconnected {
+  filter: grayscale(0.8) opacity(0.6);
+  pointer-events: none;
+}
+
+.phx-disconnected::after {
+  content: "接続中...";
+  position: fixed;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  background: rgba(0,0,0,0.7);
+  color: white;
+  padding: 12px 24px;
+  border-radius: 12px;
+  font-size: 14px;
+  z-index: 9999;
+  animation: pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes pulse {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.5; }
+}
