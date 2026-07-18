@@ -3,8 +3,9 @@ import {Socket} from "phoenix"
 import {LiveSocket} from "phoenix_live_view"
 import topbar from "../vendor/topbar"
 import {AudioRecorder} from "./hooks/audio_recorder"
+import {ShiritoriASR} from "./hooks/shiritori_asr"
 
-let Hooks = { AudioRecorder }
+let Hooks = { AudioRecorder, ShiritoriASR }
 
 let csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute("content")
 let liveSocket = new LiveSocket("/live", Socket, {
@@ -96,7 +97,18 @@ window.addEventListener("speak-tts", (e) => {
   const utterance = new SpeechSynthesisUtterance(text)
   utterance.rate = 1.0
   utterance.pitch = 1.0
-  utterance.lang = "en-US"
+  utterance.lang = "ja-JP"
+  speechSynthesis.speak(utterance)
+})
+
+window.addEventListener("tts-speak", (e) => {
+  const text = e.detail.text
+  if (!text) return
+  speechSynthesis.cancel()
+  const utterance = new SpeechSynthesisUtterance(text)
+  utterance.rate = 1.0
+  utterance.pitch = 1.1
+  utterance.lang = "ja-JP"
   speechSynthesis.speak(utterance)
 })
 

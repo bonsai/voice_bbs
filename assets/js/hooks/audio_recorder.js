@@ -164,6 +164,7 @@ export const AudioRecorder = {
     this.animFrameId = null
     this.maxVolume = 0
     this.source = this.el.dataset.source || "board"
+    this.roomId = this.el.dataset.roomId || null
     this.deviceId = this.getDeviceId()
 
     this.btn = this.el.querySelector('#record-btn')
@@ -276,13 +277,15 @@ export const AudioRecorder = {
         const base64 = await encodeBytesAsPNG(wavBytes)
 
         const csrfToken = document.querySelector("meta[name='csrf-token']").getAttribute('content')
+        const body = { image_base64: base64, duration: duration, device_id: this.deviceId, source: this.source }
+        if (this.roomId) body.room_id = this.roomId
         const res = await fetch('/api/upload', {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',
             'x-csrf-token': csrfToken,
           },
-          body: JSON.stringify({ image_base64: base64, duration: duration, device_id: this.deviceId, source: this.source }),
+          body: JSON.stringify(body),
         })
         const data = await res.json()
         if (data.ok && typeof data.remaining === 'number') {

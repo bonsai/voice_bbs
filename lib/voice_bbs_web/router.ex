@@ -19,9 +19,9 @@ defmodule VoiceBbsWeb.Router do
 
     live "/", BoardLive
     live "/yon", YonLive
-    live "/admin", AdminLive
-    live "/test", TestLive
-    live "/api-list", ApiLive
+    live "/manage", ManageLive
+    live "/room/:id", RoomLive
+    live "/shiritori", ShiritoriLive
   end
 
   scope "/api", VoiceBbsWeb do
@@ -36,5 +36,6 @@ defmodule VoiceBbsWeb.Router do
     post "/new", UploadController, :new
     delete "/posts/:id", UploadController, :delete
     get "/count/:device_id", UploadController, :count
+    get "/rooms", UploadController, :rooms
   end
 end

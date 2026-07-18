@@ -23,15 +23,10 @@ defmodule VoiceBbsWeb.YonLive do
       {:noreply,
        socket
        |> stream_insert(:posts, post, at: 0)
-       |> update(:post_count, & &1 + 1)}
+       |> update(:post_count, &(&1 + 1))}
     else
       {:noreply, socket}
     end
-  end
-
-  @impl true
-  def handle_info({:delete_post, id}, socket) do
-    {:noreply, stream_delete(socket, :posts, id)}
   end
 
   defp bubble_size(duration) do
@@ -54,15 +49,19 @@ defmodule VoiceBbsWeb.YonLive do
   def render(assigns) do
     ~H"""
     <div class="bg-gradient-to-b from-white via-purple-50/30 to-pink-50/20 min-h-dvh font-sans overflow-hidden relative select-none">
-      <div class="text-center pt-4 sm:pt-6 pb-1">
-        <h1 class="text-lg sm:text-xl font-bold tracking-wide"
+
+      <%!-- Header --%>
+      <div class="text-center pt-3 pb-1">
+        <h1 class="text-lg font-bold tracking-wide"
             style="background:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
           yon
         </h1>
         <p class="text-[10px] text-purple-400/30 mt-0.5 font-light">tap to listen</p>
       </div>
 
-      <div id="posts" phx-update="stream" class="max-w-lg mx-auto px-4 sm:px-6 pb-48 sm:pb-44 flex flex-wrap justify-center items-center gap-3 sm:gap-4">
+      <%!-- Floating bubbles --%>
+      <div id="posts" phx-update="stream"
+           class="max-w-lg mx-auto px-3 pb-36 flex flex-wrap justify-center items-center gap-2">
         <button
           :for={{id, post} <- @streams.posts}
           id={id}
@@ -78,8 +77,15 @@ defmodule VoiceBbsWeb.YonLive do
         </button>
       </div>
 
-      <div id="recorder" phx-hook="AudioRecorder" class="fixed bottom-0 left-0 right-0 flex flex-col items-center pointer-events-none"
-           style="padding-bottom:max(20px,env(safe-area-inset-bottom,16px))"
+      <div :if={@post_count == 0}
+           class="absolute inset-0 flex items-center justify-center pointer-events-none">
+        <p class="text-purple-300/30 text-sm">hold mic to record</p>
+      </div>
+
+      <%!-- Mic --%>
+      <div id="recorder" phx-hook="AudioRecorder"
+           class="fixed bottom-0 left-0 right-0 flex flex-col items-center pointer-events-none z-40"
+           style="padding-bottom:max(12px,env(safe-area-inset-bottom,12px))"
            data-source="yon">
         <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
              style="width:0px;height:0px">
@@ -87,12 +93,9 @@ defmodule VoiceBbsWeb.YonLive do
             <canvas id="waveform-canvas" class="w-full h-full rounded-full block"></canvas>
           </div>
         </div>
-
-        <div class="pointer-events-auto flex flex-col items-center gap-1">
-          <div id="timer" class="text-purple-400/40 text-[10px] font-mono hidden">
-            0:00 / 0:30
-          </div>
-          <div id="slots" class="flex items-center justify-center gap-1.5 mb-1">
+        <div class="pointer-events-auto flex flex-col items-center gap-0.5">
+          <div id="timer" class="text-purple-400/40 text-[10px] font-mono hidden">0:00 / 0:30</div>
+          <div id="slots" class="flex items-center justify-center gap-1 mb-0.5">
             <div class="slot-dot"></div><div class="slot-dot"></div><div class="slot-dot"></div><div class="slot-dot"></div>
           </div>
           <button id="record-btn" class="mic-btn">
@@ -103,8 +106,12 @@ defmodule VoiceBbsWeb.YonLive do
               <line x1="8" y1="23" x2="16" y2="23"/>
             </svg>
           </button>
-          <p class="text-[10px] text-purple-300/20 font-light">hold to record</p>
         </div>
+      </div>
+
+      <%!-- Manage panel --%>
+      <div id="manage-mount" phx-hook="ManagePanel">
+        <%= live_render(@socket, VoiceBbsWeb.ManageLive, id: "manage-yon") %>
       </div>
     </div>
     """

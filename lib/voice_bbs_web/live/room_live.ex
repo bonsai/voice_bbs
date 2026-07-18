@@ -1,36 +1,33 @@
-defmodule VoiceBbsWeb.BoardLive do
+defmodule VoiceBbsWeb.RoomLive do
   use VoiceBbsWeb, :live_view
 
   @topic "board"
 
   @impl true
-  def mount(_params, _session, socket) do
+  def mount(%{"id" => room_id}, _session, socket) do
     if connected?(socket) do
       Phoenix.PubSub.subscribe(VoiceBbs.PubSub, @topic)
     end
 
-    posts = VoiceBbs.Posts.list_posts() |> Enum.filter(&(&1.source == "board"))
+    posts = VoiceBbs.Posts.list_posts() |> Enum.filter(&(&1.room_id == room_id))
 
     {:ok,
      socket
+     |> assign(:room_id, room_id)
      |> stream(:posts, posts)
-     |> assign(:post_count, length(posts))
-     |> push_onboarding()}
-  end
-
-  defp push_onboarding(socket) do
-    socket
-    |> push_event("speak-onboard", %{
-      text: "Welcome to voice bubble. Tap a bubble to listen. Hold mic to record."
-    })
+     |> assign(:post_count, length(posts))}
   end
 
   @impl true
   def handle_info({:new_post, post}, socket) do
-    {:noreply,
-     socket
-     |> stream_insert(:posts, post, at: 0)
-     |> update(:post_count, &(&1 + 1))}
+    if post.room_id == socket.assigns.room_id do
+      {:noreply,
+       socket
+       |> stream_insert(:posts, post, at: 0)
+       |> update(:post_count, &(&1 + 1))}
+    else
+      {:noreply, socket}
+    end
   end
 
   defp bubble_size(duration) do
@@ -49,6 +46,10 @@ defmodule VoiceBbsWeb.BoardLive do
     end
   end
 
+  defp room_label("0"), do: "test"
+  defp room_label("1"), do: "yon"
+  defp room_label(id), do: id
+
   @impl true
   def render(assigns) do
     ~H"""
@@ -58,9 +59,9 @@ defmodule VoiceBbsWeb.BoardLive do
       <div class="text-center pt-3 pb-1">
         <h1 class="text-lg font-bold tracking-wide"
             style="background:linear-gradient(135deg,#7c3aed,#ec4899,#f59e0b);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text">
-          voice bubble
+          <%= room_label(@room_id) %>
         </h1>
-        <p class="text-[10px] text-purple-400/30 mt-0.5 font-light">tap to listen</p>
+        <p class="text-[10px] text-purple-400/30 mt-0.5 font-light">room <%= @room_id %> · tap to listen</p>
       </div>
 
       <%!-- Floating bubbles --%>
@@ -81,17 +82,17 @@ defmodule VoiceBbsWeb.BoardLive do
         </button>
       </div>
 
-      <%!-- Empty state --%>
       <div :if={@post_count == 0}
            class="absolute inset-0 flex items-center justify-center pointer-events-none">
         <p class="text-purple-300/30 text-sm">hold mic to record</p>
       </div>
 
-      <%!-- Mic (fixed bottom center) --%>
+      <%!-- Mic --%>
       <div id="recorder" phx-hook="AudioRecorder"
            class="fixed bottom-0 left-0 right-0 flex flex-col items-center pointer-events-none z-40"
            style="padding-bottom:max(12px,env(safe-area-inset-bottom,12px))"
-           data-source="board">
+           data-source={@room_id}
+           data-room-id={@room_id}>
         <div id="preview-bubble" class="preview-bubble hidden pointer-events-none"
              style="width:0px;height:0px">
           <div class="bubble w-full h-full overflow-hidden opacity-60 flex items-center justify-center">
@@ -114,9 +115,9 @@ defmodule VoiceBbsWeb.BoardLive do
         </div>
       </div>
 
-      <%!-- Manage panel (footer) --%>
+      <%!-- Manage panel --%>
       <div id="manage-mount" phx-hook="ManagePanel">
-        <%= live_render(@socket, VoiceBbsWeb.ManageLive, id: "manage-board") %>
+        <%= live_render(@socket, VoiceBbsWeb.ManageLive, id: "manage-room-#{@room_id}") %>
       </div>
     </div>
     """

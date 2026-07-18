@@ -6,8 +6,9 @@ defmodule VoiceBbsWeb.UploadController do
       {:ok, png_data} ->
         dur = parse_duration(duration)
         source = Map.get(params, "source", "board")
+        room_id = Map.get(params, "room_id") || source_to_room_id(source)
 
-        case VoiceBbs.Posts.add_post(device_id, png_data, dur, source) do
+        case VoiceBbs.Posts.add_post(device_id, png_data, dur, source, room_id) do
           {:ok, post} ->
             remaining = VoiceBbs.Posts.max_per_device() - VoiceBbs.Posts.count_by_device(device_id)
 
@@ -126,4 +127,21 @@ defmodule VoiceBbsWeb.UploadController do
 
   defp parse_duration(d) when is_number(d), do: max(d, 0.1)
   defp parse_duration(_d), do: 0.1
+
+  defp source_to_room_id("yon"), do: "1"
+  defp source_to_room_id("test"), do: "0"
+  defp source_to_room_id(_), do: nil
+
+  def rooms(conn, _params) do
+    rooms_file = Path.join(:code.priv_dir(:voice_bbs), "../rooms.json")
+
+    rooms =
+      if File.exists?(rooms_file) do
+        rooms_file |> File.read!() |> Jason.decode!() |> Map.get("rooms", [])
+      else
+        []
+      end
+
+    json(conn, %{ok: true, rooms: rooms})
+  end
 end
