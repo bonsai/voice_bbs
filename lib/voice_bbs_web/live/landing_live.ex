@@ -92,37 +92,44 @@ defmodule VoiceBbsWeb.LandingLive do
         </button>
       </div>
 
-      <%!-- Enter room --%>
+      <%!-- Enter room: square grid --%>
       <div class="w-full max-w-xs mb-4">
-        <div class="text-[10px] text-gray-400 text-center mb-2">入る</div>
-        <div class="space-y-2">
+        <div class="text-[10px] text-gray-400 text-center mb-3">入る</div>
+        <div class="grid grid-cols-3 gap-3">
           <%= for room <- @rooms do %>
             <a href={"/room/#{room["id"]}"}
-               class="block w-full py-3 px-4 bg-white border border-purple-100 rounded-xl text-sm text-gray-600 hover:border-purple-300 hover:shadow-sm transition text-center">
-              <%= room["name"] %>
+               class="aspect-square flex flex-col items-center justify-center bg-white border border-purple-100 rounded-2xl text-sm text-gray-600 hover:border-purple-300 hover:shadow-md transition">
+              <span class="text-lg mb-0.5">🫧</span>
+              <span class="text-[10px] font-medium truncate px-1"><%= room["name"] %></span>
             </a>
           <% end %>
+
+          <%!-- +NEW tile --%>
+          <button phx-click="toggle-create"
+                  class="aspect-square flex flex-col items-center justify-center bg-purple-50 border-2 border-dashed border-purple-200 rounded-2xl text-purple-400 hover:bg-purple-100 hover:border-purple-300 transition">
+            <span class="text-2xl leading-none">+</span>
+            <span class="text-[10px] font-medium mt-0.5">NEW</span>
+          </button>
         </div>
       </div>
 
-      <%!-- Make room --%>
-      <div class="w-full max-w-xs mt-4">
-        <button phx-click="toggle-create"
-                class="w-full py-3 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition shadow-md">
-          + ルームをつくる
-        </button>
-
-        <div :if={@show_create} class="mt-3 p-4 bg-white rounded-xl border border-purple-100 shadow-sm">
-          <form phx-submit="create-room" class="space-y-3">
-            <input type="text" name="name" placeholder="ルーム名"
-                   class="w-full px-3 py-2 border border-purple-200 rounded-lg text-sm focus:outline-none focus:border-purple-400"
-                   required />
+      <%!-- Create room form --%>
+      <div :if={@show_create} class="w-full max-w-xs mt-4 p-4 bg-white rounded-2xl border border-purple-100 shadow-sm">
+        <form phx-submit="create-room" class="space-y-3">
+          <input type="text" name="name" placeholder="ルーム名"
+                 class="w-full px-3 py-2 border border-purple-200 rounded-xl text-sm focus:outline-none focus:border-purple-400"
+                 required />
+          <div class="flex gap-2">
+            <button type="button" phx-click="toggle-create"
+                    class="flex-1 py-2.5 bg-gray-100 text-gray-500 rounded-xl text-sm font-medium hover:bg-gray-200 transition">
+              やめる
+            </button>
             <button type="submit"
-                    class="w-full py-2.5 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition">
+                    class="flex-1 py-2.5 bg-purple-500 text-white rounded-xl text-sm font-medium hover:bg-purple-600 transition">
               つくる
             </button>
-          </form>
-        </div>
+          </div>
+        </form>
       </div>
 
       <%!-- Links --%>
