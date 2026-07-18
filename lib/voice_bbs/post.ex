@@ -8,7 +8,7 @@ defmodule VoiceBbs.Post do
     field :duration, :float
     field :filename, :string
     field :source, :string, default: "board"
-    field :room_id, :string
+    field :room_id, Ecto.UUID
 
     timestamps()
   end
