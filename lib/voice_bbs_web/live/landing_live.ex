@@ -20,7 +20,7 @@ defmodule VoiceBbsWeb.LandingLive do
   end
 
   def handle_event("mic-check", _params, socket) do
-    {:noreply, push_event(socket, "test-mic", %{})}
+    {:noreply, push_event(socket, "test-mic", %{target: "landing-page"})}
   end
 
   def handle_event("mic-result", %{"ok" => ok}, socket) do
@@ -104,7 +104,7 @@ defmodule VoiceBbsWeb.LandingLive do
       </div>
 
       <%!-- Step 2: Mic check --%>
-      <div :if={@step == 2} class="flex-1 flex flex-col items-center justify-center">
+      <div :if={@step == 2} id="landing-page" class="flex-1 flex flex-col items-center justify-center">
         <div class="text-4xl mb-4">🔊</div>
         <p class="text-sm text-gray-500 text-center mb-6">マイクをチェック</p>
         <button phx-click="mic-check"

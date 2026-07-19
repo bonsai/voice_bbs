@@ -150,13 +150,16 @@ window.addEventListener("new-room", async () => {
   window.location.reload()
 })
 
-window.addEventListener("test-mic", async () => {
+window.addEventListener("test-mic", async (e) => {
+  const targetId = e.detail?.target || "test-page"
   try {
     const stream = await navigator.mediaDevices.getUserMedia({ audio: true })
     stream.getTracks().forEach(t => t.stop())
-    window.liveSocket.execJS(document.getElementById("test-page"), [["push", { event: "mic-result", value: { ok: true } }]])
+    const el = document.getElementById(targetId)
+    if (el) window.liveSocket.execJS(el, [["push", { event: "mic-result", value: { ok: true } }]])
   } catch (_) {
-    window.liveSocket.execJS(document.getElementById("test-page"), [["push", { event: "mic-result", value: { ok: false } }]])
+    const el = document.getElementById(targetId)
+    if (el) window.liveSocket.execJS(el, [["push", { event: "mic-result", value: { ok: false } }]])
   }
 })
 
