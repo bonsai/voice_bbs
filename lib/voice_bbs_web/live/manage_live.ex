@@ -19,6 +19,7 @@ defmodule VoiceBbsWeb.ManageLive do
      |> assign(:panel_open, false)
      |> assign(:error_msg, nil)
      |> assign(:active_tab, "posts")
+     |> assign(:rooms, list_rooms())
      |> refresh_stats()}
   end
 
@@ -61,6 +62,16 @@ defmodule VoiceBbsWeb.ManageLive do
   end
 
   @impl true
+  def handle_event("toggle-room", %{"id" => id}, socket) do
+    rooms = list_rooms()
+    rooms = Enum.map(rooms, fn r ->
+      if r["id"] == id, do: Map.update(r, "open", true, &(!&1)), else: r
+    end)
+    write_rooms(rooms)
+    {:noreply, assign(socket, :rooms, rooms)}
+  end
+
+  @impl true
   def handle_info({:new_post, _post}, socket) do
     posts = VoiceBbs.Posts.list_posts()
     {:noreply, assign(socket, :posts, posts)}
@@ -99,6 +110,20 @@ defmodule VoiceBbsWeb.ManageLive do
   defp status_color("OK"), do: "text-[11px] font-medium text-green-500"
   defp status_color(_), do: "text-[11px] font-medium text-red-400"
 
+  defp list_rooms do
+    path = Path.join(:code.priv_dir(:voice_bbs), "../rooms.json")
+    if File.exists?(path) do
+      path |> File.read!() |> Jason.decode!() |> Map.get("rooms", [])
+    else
+      []
+    end
+  end
+
+  defp write_rooms(rooms) do
+    path = Path.join(:code.priv_dir(:voice_bbs), "../rooms.json")
+    File.write!(path, Jason.encode!(%{"rooms" => rooms}, pretty: true))
+  end
+
   defp chevron_class(true), do: "w-3 h-3 text-purple-400 transition-transform duration-300 rotate-180"
   defp chevron_class(_), do: "w-3 h-3 text-purple-400 transition-transform duration-300"
 
@@ -133,6 +158,10 @@ defmodule VoiceBbsWeb.ManageLive do
           <button phx-click="switch-tab" phx-value-tab="status"
                   class={tab_class(@active_tab, "status")}>
             status
+          </button>
+          <button phx-click="switch-tab" phx-value-tab="rooms"
+                  class={tab_class(@active_tab, "rooms")}>
+            rooms
           </button>
         </div>
 
@@ -208,6 +237,22 @@ defmodule VoiceBbsWeb.ManageLive do
                     class="w-full py-2 bg-purple-50 text-purple-400 text-[11px] rounded-lg hover:bg-purple-100 transition">
               refresh
             </button>
+          </div>
+
+          <%!-- Rooms tab --%>
+          <div :if={@active_tab == "rooms"} class="space-y-2">
+            <%= for room <- @rooms do %>
+              <div class="flex items-center justify-between py-2 px-2 rounded-lg bg-purple-50/50">
+                <div class="flex items-center gap-2">
+                  <span class="text-[11px] text-purple-500"><%= room["name"] %></span>
+                  <span class="text-[9px] text-purple-300/50"><%= room["type"] %></span>
+                </div>
+                <button phx-click="toggle-room" phx-value-id={room["id"]}
+                        class={"text-[10px] px-2 py-1 rounded-full transition #{if room["open"] != false, do: "bg-green-100 text-green-600", else: "bg-gray-100 text-gray-400"}"}>
+                  <%= if room["open"] != false, do: "公開", else: "非公開" %>
+                </button>
+              </div>
+            <% end %>
           </div>
         </div>
       </div>
