@@ -99,30 +99,12 @@ defmodule VoiceBbsWeb.LandingLive do
         </p>
         <button phx-click="next-step"
                 class="px-6 py-3 bg-purple-500 text-white rounded-full text-sm font-medium hover:bg-purple-600 transition shadow-lg">
-          次
+          ルームを選ぶ
         </button>
       </div>
 
-      <%!-- Step 2: Mic check --%>
-      <div :if={@step == 2} id="landing-page" class="flex-1 flex flex-col items-center justify-center">
-        <div class="text-4xl mb-4">🔊</div>
-        <p class="text-sm text-gray-500 text-center mb-6">マイクをチェック</p>
-        <button phx-click="mic-check"
-                class={"w-48 py-4 rounded-2xl text-sm font-medium transition shadow-md #{mic_class(@mic_ok)}"}>
-          <%= case @mic_ok do %>
-            <% true -> %> ✓ OK
-            <% false -> %> ✗ NG
-            <% _ -> %> マイクチェック
-          <% end %>
-        </button>
-        <button :if={@mic_ok != nil} phx-click="next-step"
-                class="mt-6 px-6 py-3 bg-purple-500 text-white rounded-full text-sm font-medium hover:bg-purple-600 transition shadow-lg">
-          次
-        </button>
-      </div>
-
-      <%!-- Step 3: Rooms (random positions) --%>
-      <div :if={@step >= 3} class="flex-1 flex flex-col items-center w-full pt-8">
+      <%!-- Step 2: Rooms (random positions) --%>
+      <div :if={@step >= 2} class="flex-1 flex flex-col items-center w-full pt-8">
         <p class="text-xs text-gray-400 mb-4">ルームに入る</p>
 
         <div class="relative w-full max-w-sm" style="height: 60vh;">
