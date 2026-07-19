@@ -124,6 +124,17 @@ defmodule VoiceBbsWeb.ManageLive do
     File.write!(path, Jason.encode!(%{"rooms" => rooms}, pretty: true))
   end
 
+  defp room_icon(%{"type" => "shiritori"}), do: "🔗"
+  defp room_icon(_), do: "🫧"
+
+  defp room_color(_idx, false), do: "border-gray-200 bg-gray-50/50 opacity-50"
+  defp room_color(0, _), do: "border-purple-100 bg-purple-50/50"
+  defp room_color(1, _), do: "border-pink-100 bg-pink-50/50"
+  defp room_color(2, _), do: "border-blue-100 bg-blue-50/50"
+  defp room_color(3, _), do: "border-yellow-100 bg-yellow-50/50"
+  defp room_color(4, _), do: "border-green-100 bg-green-50/50"
+  defp room_color(_, _), do: "border-purple-100 bg-purple-50/50"
+
   defp chevron_class(true), do: "w-3 h-3 text-purple-400 transition-transform duration-300 rotate-180"
   defp chevron_class(_), do: "w-3 h-3 text-purple-400 transition-transform duration-300"
 
@@ -240,19 +251,19 @@ defmodule VoiceBbsWeb.ManageLive do
           </div>
 
           <%!-- Rooms tab --%>
-          <div :if={@active_tab == "rooms"} class="space-y-2">
-            <%= for room <- @rooms do %>
-              <div class="flex items-center justify-between py-2 px-2 rounded-lg bg-purple-50/50">
-                <div class="flex items-center gap-2">
-                  <span class="text-[11px] text-purple-500"><%= room["name"] %></span>
-                  <span class="text-[9px] text-purple-300/50"><%= room["type"] %></span>
+          <div :if={@active_tab == "rooms"}>
+            <div class="grid grid-cols-3 gap-2">
+              <%= for {room, idx} <- Enum.with_index(@rooms) do %>
+                <div class={"flex flex-col items-center justify-center aspect-square rounded-2xl border transition #{room_color(idx, room["open"])}"}>
+                  <span class="text-lg mb-0.5"><%= room_icon(room) %></span>
+                  <span class="text-[9px] font-medium truncate px-1 max-w-[60px]"><%= room["name"] %></span>
+                  <button phx-click="toggle-room" phx-value-id={room["id"]}
+                          class={"mt-1 text-[8px] px-1.5 py-0.5 rounded-full transition #{if room["open"] != false, do: "bg-green-100 text-green-600", else: "bg-gray-100 text-gray-400"}"}>
+                    <%= if room["open"] != false, do: "公開", else: "非公開" %>
+                  </button>
                 </div>
-                <button phx-click="toggle-room" phx-value-id={room["id"]}
-                        class={"text-[10px] px-2 py-1 rounded-full transition #{if room["open"] != false, do: "bg-green-100 text-green-600", else: "bg-gray-100 text-gray-400"}"}>
-                  <%= if room["open"] != false, do: "公開", else: "非公開" %>
-                </button>
-              </div>
-            <% end %>
+              <% end %>
+            </div>
           </div>
         </div>
       </div>
