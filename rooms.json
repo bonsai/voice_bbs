@@ -1,8 +1,8 @@
 {
   "rooms": [
-    {"id": "0", "name": "test", "source": "test"},
-    {"id": "1", "name": "yon", "source": "yon"},
-    {"id": "hiraiforever", "name": "hiraiforever", "source": "board"},
-    {"id": "savon", "name": "savon", "source": "board"}
+    {"id": "shiritori", "name": "しりとり", "type": "shiritori", "open": true},
+    {"id": "test", "name": "test", "type": "voice", "open": true},
+    {"id": "hiraiforever", "name": "hiraiforever", "type": "voice", "open": true},
+    {"id": "savon", "name": "savon", "type": "voice", "open": true}
   ]
 }

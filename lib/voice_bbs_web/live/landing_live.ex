@@ -64,6 +64,12 @@ defmodule VoiceBbsWeb.LandingLive do
 
   defp rooms_path, do: Path.join(:code.priv_dir(:voice_bbs), "../rooms.json")
 
+  defp room_url(%{"type" => "shiritori"}), do: "/shiritori"
+  defp room_url(%{"id" => id}), do: "/room/#{id}"
+
+  defp room_icon(%{"type" => "shiritori"}), do: "🔗"
+  defp room_icon(_), do: "🫧"
+
   defp generate_positions(rooms) do
     # Deterministic random-ish positions based on room name hash
     Enum.with_index(rooms, fn room, idx ->
@@ -134,11 +140,12 @@ defmodule VoiceBbsWeb.LandingLive do
         <div class="relative w-full max-w-sm" style="height: 60vh;">
           <%= for room <- @rooms do %>
             <% pos = Map.get(@room_positions, room["id"], %{x: 50, y: 50, rotate: 0, delay: 0}) %>
-            <a href={"/room/#{room["id"]}"}
-               class="absolute flex flex-col items-center justify-center w-24 h-24 bg-white/90 backdrop-blur-sm border border-purple-100 rounded-2xl shadow-md hover:shadow-xl hover:scale-110 transition-all duration-300"
+            <a href={room_url(room)}
+               class={"absolute flex flex-col items-center justify-center w-24 h-24 bg-white/90 backdrop-blur-sm border rounded-2xl shadow-md hover:shadow-xl hover:scale-110 transition-all duration-300 #{if room["open"] != false, do: "border-purple-100", else: "border-gray-200 opacity-50"}"}
                style={"left: #{pos.x}%; top: #{pos.y}%; transform: rotate(#{pos.rotate}deg); animation: pop-in 0.4s #{pos.delay}s both"}>
-              <span class="text-2xl mb-1">🫧</span>
+              <span class="text-2xl mb-1"><%= room_icon(room) %></span>
               <span class="text-[10px] font-medium text-gray-600 truncate px-1 max-w-[80px]"><%= room["name"] %></span>
+              <span :if={room["open"] == false} class="text-[8px] text-gray-400">非公開</span>
             </a>
           <% end %>
 
@@ -172,7 +179,6 @@ defmodule VoiceBbsWeb.LandingLive do
 
         <%!-- Links --%>
         <div class="mt-6 flex gap-4 text-[10px] text-gray-400">
-          <a href="/shiritori" class="hover:text-purple-500 transition">しりとり</a>
           <a href="/manage" class="hover:text-purple-500 transition">管理</a>
         </div>
       </div>
